@@ -24,13 +24,42 @@
 
 = OOP 1 Zusammenfassung
 
-== Syntax und Semantik
-*Syntax*: Grammatik \
-*Semantik*: Bedeutung der Sprachelemente (Was macht eine While-Schlaufe?)
 == Unäre Operatoren
 ```java x++``` #sym.arrow.l.r.double Gib x zurück; x = x + 1. \
 ```java ++x``` #sym.arrow.l.r.double x = x + 1; Gib x zurück.
-== Strings
+
+== Datentypen
+=== Double
+Mantisse: 52 Bit
+Exponent: 11 Bit
+Vorzeichen: 1 Bit
+
+=== Float
+Mantisse: 23 Bit
+Exponent: 8 Bit
+Vorzeichen 1 Bit
+
+=== Ordnung von Primitives
++ long, double (64 Bit)
++ int, float (32 Bit)
++ short (16 bit)
++ byte (8 bit)
+
+=== Iterator
+```java
+Iterator<String> iter = stringList.iterator();
+while(it.hasNext()) {
+  String elem = it.next();
+
+  it.remove();
+}
+```
+
+=== Wrapper-Klassen
+```java
+Integer boxed = Integer.valueOf(5);
+int unboxed = boxed.intValue();
+```
 === String Pooling
 Eine reine Compiler-Optimisation. Gleiche Strings können als einziges Objekt alloziiert werden.
 Beispiel:
@@ -54,6 +83,20 @@ String a = """
 Multiline
 String with "(unescaped) double quotes inside".""";
 ```
+
+== Enums
+```java
+public enum Weekday {
+  MONDAY(true), TUESDAY(true), WEDNESDAY(true), THURSDAY(true), FRIDAY(true), SATURDAY(false), SUNDAY(false);
+
+  private boolean isWeekday;
+
+  public Weekday(boolean isWeekday) {
+    this.isWeekday = isWeekday;
+  }
+}
+```
+Der `==`-Operator funktioniert für Enums by default.
 
 == Methoden
 === Overloading
@@ -122,22 +165,6 @@ Statische Bindung:
 - Zugriff auf das Feld der Basisklasse mit `super.description` oder `((Vehicle)this).description`
 - Zugriff auf das Feld irgendeiner Klasse in der Vererbungshierarchie mit `((SuperSuperClass)this).description` (Es existiert kein `super.super`).
 
-== Final
-=== Finale Methode
-```java
-class Vehicle {
-  public final void stop() {}
-}
-class Car extends Vehicle {
-  public void stop() {} // Compiler-Error: Cannot override the final method...
-}
-```
-
-=== Finale Klasse
-```java
-final class Vehicle {}
-class Car extends Vehicle {} // Compiler-Error: Cannot inherit from final class...
-```
 
 == Equals-Overriding
 #warn[Bei equals stets `getClass() != obj.getClass()` verwenden, anstelle `instanceof`, da `instanceof` die Vererbungshierarchie berücksichtigt.]
@@ -184,3 +211,86 @@ n + n (2/3) + n (2/3)^2 + n (2/3)^3 + ... = 3n
 $$$
 
 Die amortisierte Kostenanalyse beträgt somit <= 3 pro Einfügen.
+
+== Exceptions
+Bei einem Rethrow in einer try-Methode, werden alle nachfolgenden catches nicht behandelt.
+
+```java `Exception(String message, Throwable cause)``` (cause kann Exception sein, damit kann man den Stack Trace selbst aufbauen)
+
+=== Finally
+Wird immer ausgeführt, auch wenn Exception nicht geprüft wurde oder nach einem Rethrow.
+Wird auch ausgeführt nach einem early return.
+
+Die zweite Exception im Finally-Block überschreibt erste Exception im catch Block.
+```java
+try {
+  // ...
+} catch(RuntimeException ex) {
+  throw ex; // wird ignoriert
+} finally {
+  throw new Exception();
+}
+```
+
+== Comparable-Interface
+
+```java
+class Person implements Comparable<Person> {
+  private int age;
+  public int compareTo(Person other) {
+    return Integer.compare(age, other.age);
+  }
+}
+```
+
+== Comparator-Interface
+
+```java
+interface Comparator<T> {
+  int compare(T a, T b);
+}
+
+Collections.sort(people, new MyComparator());
+people.sort(this::compareByAge); // Methodenreferenz (Higher order function)
+```
+
+```java
+  @FunctionalInterface
+  interface Comparable<T> {
+    int compare(T first, T second);
+  }
+```
+
+=== Comparator-Bausteine
+```java
+people.sort(Comparator.comparing(Person::getAge));
+people.sort(Comparator.comparing(
+  Person::getLastName).reversed()); // reversed ist eine default methode auf dem Comparator-Interface
+people.sort(Comparator
+  .comparing(Person::getLastName)
+  .thenComparing(Person::getFirstName));
+```
+
+== Stream-API
+```java
+list.forEach(System.out::println);
+```
+
+von Package `java.util.function`:
+```java
+filter(Predicate<T> p)
+map(Function<T, U> f)
+foreach(Consumer<T> c)
+```
+
+```java
+var random = new Random();
+Stream.generate(random::nextInt)
+  .forEach(System.out::println);
+```
+
+```java
+Map<Integer, List<Person>> peopleByAge = 
+  people.stream()
+  .collect(Collectors.groupingBy(Person::Age));
+```
