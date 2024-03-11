@@ -4,10 +4,11 @@
 #set page(
   header: align(right)[OOP Zusammenfassung – Damien Flury],
   numbering: "– 1 –",
-  columns: 5,
   flipped: true,
   margin: 20pt,
 )
+
+#show: content => columns(5, content)
 
 #set text(
   lang: "de",
