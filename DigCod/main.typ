@@ -1,7 +1,8 @@
 #set page(
   flipped: true,
-  columns: 3,
+  columns: 2,
 )
+
 
 = Das Stellenwertsystem
 == Polynomschreibweise
@@ -39,3 +40,42 @@ Annahme: Bei 1000 gibt es einen *Überlauf*.
 $753 + 247 = 0$, daraus folgt $753 equiv -247$
 
 Somit ist $620 - 247 equiv 620 + 753 = 1373 equiv 373$.
+
+=== Additive Zahl berechnen
+Gesucht: Additive Zahl von -247 (, also 753).
+hhhh$$$
+999 - 247 &= 752 "(Neunerkomplement)" \
+752 + 1 &= 753 "(Zehnerkomplement)"
+$$$
+
+=== Dualzahlen
+$-1$:\ 
+$1 = 0001_2$. \
+Einerkomplement: $1110_2$ \
+Zweierkomplement: $1111_2 = -1$
+
+== Unsigned Multiplikation
+Die unsigned Multiplikation ist eine Summe von Links-Shifts.
+
+$a = 3, b = 5$
+$$$
+0011 * 0101 \
+&= 0101 + 1010 \
+$$$
+
+== Signed Multiplikation
+Die signed Multiplikation funktioniert analog zur unsigned Multiplikation, aber wenn einer der Operanden negativ ist, muss das Zweierkomplement davon gebildet werden:
+
+=== Beispiel
+$1101 * 0111$ ($(-3) dot 7 = -21$) 
+
+$1101$ ist negativ, das Zweierkomplement ist $0011$.
+
+$0011 * 0111 = 0111 + 01110 = 010101$. Das Zweierkomplement davon ist $101011$ (= -21).
+
+== Indexschreibweise
+$b = 1010$
+
+$b_3 = 1, b_2 = 0, b_1 = 1, b_0 = 0$
+
+$b_(3..1) = 101, b[3..1] = 101$
