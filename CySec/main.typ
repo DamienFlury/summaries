@@ -231,6 +231,45 @@ Ein Token Device/Hardware Token ist ein kleines Gerät, das Passwörter generier
   - Kollisionsangriff auf Hash-Funktionen (Siehe @hash-functions)
   - Geburtstagsparadoxon: Wahrscheinlichkeit, dass zwei Personen am selben Tag Geburtstag haben
   - Kann durch Hashing-Algorithmen mit genügend Bits oder durch #link("https://de.wikipedia.org/wiki/Salt_(Kryptologie)")[Salting] verringert werden.
+    - MD5 ist nicht Collision-Free
+    - SHA-3 kann bis zu 512 Bits verwenden und wird (aktuell) als sicher gegen Birthday-Attacks angesehen.
+- Rainbow Table Attacks
+  - Ein Passwort zu erraten, es dann zu hashen und dann vergleichen braucht eine lange Zeit.
+  - Rainbow Tables enthalten bereits die vorberechneten Hashes.
+  - Es wird Zeit gespart
+- Sniffer Attacks
+  - Ein Sniffer (Packet-/Protocol-Analyzer) ist eine Applikation, die Network-Traffic überwacht.
+  - Schutzmassnahmen:
+    - Encryption von Daten
+    - OTPs verwenden (Können nach dem "Sniffen" nicht vom Attacker wiederverwendet werden)
+    - Physical Security: Zugriff auf Routers und Switches physikalisch verhindern
+- Spoofing (Masquerading) Attacks
+  - Sich als jemand/etwas Anderes ausgeben
+    - IP Spoofing, valide Source IP wird mit einer falschen ersetzt.
+    - Idenität verschleiern oder sich als trusted System ausgeben.
+    - E-Mail Spoofing, Phonenumber-Spoofing
+- Social Engineering Attacks
+  - Manchmal ist es am Einfachsten, an ein Passwort zu kommen, indem man danach fragt.
+  - Attacker versucht, Vertrauen gewinnen
+  - Risiko kann durch Trainings verringert werden
+- Shoulder Surfing
+  - Social Engineer schaut jemandem über die Schulter
+  - Screen Filters können dies verhindern
+- Phishing
+  - Art von Social Engineering
+  - Sensitive Informationen weitergeben via malicious Attachment oder Link
+  - Werden als Spam versendet, in der Hoffnung, dass jemand trotzdem antwortet
+  - Simple Fishing: Es wird direkt nach Passwort, Username, etc. gefragt
+  - From-Adresse oft spoofed, Reply-Adresse ist Account des Attackers
+  - Sophisticated Phishing:
+    - Link sieht korrekt aus
+    - Infiziertes File als Attachment
+    - Drive-By Download: Lädt Dateien herunter ohne Wissen des Users, Sicherheitslücken des Browsers, Extensions
+    - Oft wird Social Media verwendet, um sich über Freundschaften und Verhältnisse der Opfer zu informieren.
+  - Spear Phishing:
+    - Phishing auf spezifische Personen gezielt
+  - Whaling: Ziel auf High-Level Executives, wie CEOs
+  - Vishing: Instant Messaging (IM), VoIP anstelle E-Mails
 
 == Hash Function
 #figure(
@@ -239,3 +278,19 @@ Ein Token Device/Hardware Token ist ein kleines Gerät, das Passwörter generier
   caption: [Hash Function]
 )<hash-functions>
 
+== Schutzmechanismen
+- Layering (defense in depth)
+  - Mehrere Kontrollen seriell
+  - So kann eine oder mehrere Kontrollen immernoch fehlschlagen, ohne dass die Attacke unbedingt gelingt
+- Abstraction
+  - Classifying Objects, Rollenzuweisung an Subjekte
+  - Zuweisung von Security Controls an eine Gruppe von Objekten
+- Data Hiding
+  - Speicherung von Daten in einer logischen Speichereinheit, auf das ein unbefugtes Subjekt keinen Zugang besitzt
+- Security through Obscurity
+  - Ein Subjekt wird nicht über ein Objekt informiert
+  - Hoffen, dass das Subjekt das Objekt nicht entdeckt
+  - Keine Art von "Schutz"
+- Encryption
+  - Das Verschleiern der Bedeutung oder Absicht einer Nachricht von Unbefugen
+  - Schleche Encryption entspricht Security through Obscurity
