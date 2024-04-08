@@ -294,3 +294,148 @@ Ein Token Device/Hardware Token ist ein kleines Gerät, das Passwörter generier
 - Encryption
   - Das Verschleiern der Bedeutung oder Absicht einer Nachricht von Unbefugen
   - Schleche Encryption entspricht Security through Obscurity
+
+#pagebreak()
+
+= Symmetric Encryption and Key Exchange
+
+== Die drei Typen der Kryptographie
+#figure(
+  image("./types-of-cryptography.png"),
+  caption: "Drei Typen der Kryptographie"
+)
+
+== Konzepte
+Zunächst liegt eine Nachricht in Plaintext vor. Diese kann der Sender mithilfe eines kryptografischen Algorithmus in Ciphertext umwandeln (Encryption). Der Empfänger kann den Ciphertext durch Decryption wieder in Plaintext umwandeln.
+
+#figure(
+  image("./encryption-decryption.png"),
+  caption: "Encryption und Decryption"
+)
+
+- Message/Plaintext
+- Ciphertext
+- Cipher
+  - Der Encryption-Algorithmus wird auch als Cipher bezeichnet.
+- Cryptographic Key
+  - Eine (oft sehr grosse) Binärzahl
+  - Jeder Algorithmus hat einen spezifischen Keyspace (die Menge aller möglichen Schlüssel, von der Anzahl Bits abhängig)
+  - Keyspace in der Range von $0$ bis $2^n - 1$, $n$ ist die Anzahl der Bits
+  - Private Keys müssen geschützt werden
+- One Way Functions
+  - Mathematische Funktion, die leicht zu berechnen ist, jedoch schwierig oder unmöglich, umzukehren
+  - Es wurde nie bewiesen, dass eine wirkliche One-Way-Function existiert
+  - Cryptographers verlassen sich auf Funktionen, die sie als One-Way erwarten
+  - Könnten in der Zukunft gebrochen werden
+- Reversability
+  - Sehr wichtig in der Kryptographie, eine Encyrption muss reversibel sein (Decryption)
+- Nonce #footnote("Abkürzung für 'Number used once'.")
+  - Einmaliger Wert, der nur einmal verwendet wird
+  - Versichert, dass derselbe Key nicht mehrmals verwendet wird
+  - Oft in Kombination mit einem Counter verwendet
+  - Nonce ist public, Key ist private
+  - Verhindert Replay-Attacken
+- Initialization Vector (IV)
+  - Zufälliger Bit-String
+    - Wird oft in Block-Ciphers verwendet
+    - Gleiche Grösse wie die Block-Size, XOR ($xor$) mit dem Plaintext
+    - Werden dafür verwendet, um denselben Plaintext mit demselben Key in unterschiedlichen Ciphertext zu verschlüsseln
+- Confusion<confusion>
+  - Relationship zwischen Plaintext und Ciphertext so komplex, dass der Attacker den Ciphertext nicht einfach analysieren kann
+  - Input #sym.arrow.l.r Output-Mapping ist komplex
+  - Substitution von Bytes
+  - Beispiel: Enigma, Caesar Cipher: Nur Confusion, keine Diffusion
+- Diffusion
+  - Eine Änderung im Plaintext sollte sich auf den gesamten Ciphertext auswirken
+  - Kleine Änderung resultiert in grosser Änderung im Ciphertext
+  - Permutation von Bytes
+
+== Kerckhoffs' Prinzip
+- Security through Obscurity
+  - Die Sicherheit eines Systems basiert auf der Geheimhaltung der Geheimnisse
+- Die Sicherheit eines Systems ist nicht von der Geheimhaltung des Algorithmus, sondern von der Geheimhaltung des Schlüssels abhängig
+- Ein kryptographisches System sollte sicher sein, auch wenn alles ausser dem Schlüssel über das System bekannt ist
+  - Algorithmen können public sein und von jedem getestet werden
+  - _"The Enemy knows the system"_
+  - Public Exposure kann Weaknesses schneller aufdecken, schnellere Adoption guter Algorithmen
+  - Viele Kryptographen passen sich diesem Prinzip an, aber nicht alle sind derselben Meinung
+  - Einige Kryptographen glauben, dass die Sicherheit eines Systems erhöht wird, wenn der Algorithmus auch geheim gehalten wird
+
+== Substitution Permutation Network (SPN)
+Unter einem SPN versteht man einen Algorithmus, der wiederholend Substitution und Permutation anwendet. - Substitution: Bytes durch andere ersetzen
+- Permutation: Bytes swappen
+- Substitutionen und Permutationen werden zusammengefasst in einer Runde (Round)
+- Runden werden viele Male wiederholt
+
+== Caesar-Cipher
+- A wird zu D, B wird zu E, X wird zu A, Y wird zu B, ...
+- ROT3 (Rotate by 3)
+- Monoalphabetic Substitution Cipher
+
+== Die Bedeutung von XOR
+Eine Bitfolge B kann bestimmen, wie sich de Plaintext A verhält: Ist an einer Position eine 1, wird das Gegenteil vom Bit von A genommen. Ist an einer Position eine 0, bleibt das Bit von A unverändert. B ist ein Key, welcher entscheidet ob A verändert wird oder nicht.
+
+#figure(image("./xor.png"), caption: "XOR")
+
+#table(columns: 3,
+  [A], [B], [O],
+  [0], [0], [0],
+  [0], [1], [1],
+  [1], [0], [1],
+  [1], [1], [0]
+)
+
+Doppeltes Anwenden von XOR kehrt die Operation um: $A xor B xor A = B$, $A xor B xor B = A$.
+
+== One Time Pad (OTP)
+- Jeder Key ist so lang wie der Plaintext
+- XOR jedes Bit des Plaintexts mit dem Key
+- Perfect Secrecy:
+  - Wenn man den Key wegnimmt, kann die Nachricht nicht entschlüsselt werden, da kein statisches Mapping von Input zu Output vorhanden ist.
+  - Diese Cipher kann nicht gebrochen werden.
+- Aber:
+  - OTP ist nicht praktisch
+  - Ein 1GB File benötigt einen 1GB Key
+  - Keys können nicht wiederverwendet werden
+
+== Symmetric Cryptography
+- Shared Secret Key
+- Shared Key wird für Encryption und Decryption verwendet
+- Mit grossen Keys kann eine starke Verschlüsselung erreicht werden
+- Nur Confidentiality
+
+== Stream Ciphers
+Es kann ein One-Time Pad approximiert werden, mit einem undendlichen pseudo-random Keystream. Stream-Ciphers funktionieren auf Nachrichten mit beliebiger Länge.
+
+#figure(
+  image("./stream-cipher.png"),
+  caption: "Stream Cipher"
+)
+
+Vorteile:
+- Encryption von langen, kontinuierlichen Streams, auch möglich für unbekannte Längen
+- Sehr schnell, mit kleinem Memory-Footprint, ideal für low-power Geräte
+- Kann zu einer beliebigen Position im Stream springen
+
+Nachteile:
+- Keystream muss statistisch zufällig sein
+- Key + Nonce dürfen nicht wiederverwendet werden
+- Streamciphers schützen den Ciphertext nicht vor Modifikation (keine garantierte Integrität)
+
+== Block Ciphers
+Block Ciphers nehmen einen Input von einer fixen Länge und geben einen Output von derselben Länge. Dabei findet Confusion und Diffusion statt. Sie sind oft SPNs.
+
+Der Advanced Encryption Standard (AES) ist ein Block Cipher, der 128-Bit Blöcke verwendet und ein SP-Network. Es ist der meistverbreitete Block Cipher. Es gibt aber auch andere, wie Feistel Ciphers.
+Man kann von einem Mapping eine Basic Permutation Box zeichnen wie in @basic-permutation-box.
+
+#figure(
+  image("./basic-permutation-box.png"),
+  caption: "Basic Permutation Box"
+)<basic-permutation-box>
+
+== Advanced Encryption Standard (AES)
+AES ist ein Standart basiert auf dem Rijndael-Algorithmus. Er hat 2002 den DES als Standart abgelöst.
+- SPN mit einer Block-Size von 128-Bit
+- Key-Size von 128, 192 oder 256 Bit
+- 10, 12 oder 14 Runden
+- Jede Runde besteht aus SubBytes, ShiftRows, MixColumns und KeyAddition
