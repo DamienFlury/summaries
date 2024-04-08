@@ -403,6 +403,14 @@ Doppeltes Anwenden von XOR kehrt die Operation um: $A xor B xor A = B$, $A xor B
 - Shared Key wird für Encryption und Decryption verwendet
 - Mit grossen Keys kann eine starke Verschlüsselung erreicht werden
 - Nur Confidentiality
+- Key distribution
+  - Die Parteien brauchen eine sichere Methode, um den geheimen Schlüssel auszutauschen
+- Implementiert keine _nonrepudiation_
+  - Jede Partei kann Nachrichten verschlüsseln und entschlüsseln, so kann nicht bewiesen werden, von wo die Nachricht kommt
+- Keine Integrität der Nachricht
+- Sehr schnell (1000 bis 10000 mal schneller als asymmetrische Verschlüsselung)
+  - Viele Prozessoren haben ein AES Instruction Set eingebaut
+- Alternative zu AES: Chacha20
 
 == Stream Ciphers
 Es kann ein One-Time Pad approximiert werden, mit einem undendlichen pseudo-random Keystream. Stream-Ciphers funktionieren auf Nachrichten mit beliebiger Länge.
@@ -439,3 +447,84 @@ AES ist ein Standart basiert auf dem Rijndael-Algorithmus. Er hat 2002 den DES a
 - Key-Size von 128, 192 oder 256 Bit
 - 10, 12 oder 14 Runden
 - Jede Runde besteht aus SubBytes, ShiftRows, MixColumns und KeyAddition
+
+=== XOR
+Zunächst wird der Key mit dem Plaintext per XOR transformiert.
+
+=== SubBytes
+Die einzelnen Bytes werden per Lookup Table ersetzt. Die Lookup Table ist eine 16x16 Matrix, wobei die Reihen und Spalten jeweils die HEX-Zahlen von 0 bis F darstellen. Dabei gibt es keinen Fixed-Point, d.h. keine Zahlen bleiben gleich.
+
+=== ShiftRows
+In diesem Schritt wird:
+- In der zweiten Zeile alle Bytes jeweils um 1 nach links verschoben
+- In der dritten Zeile alle Bytes jeweils um 2 nach links verschoben
+- In der vierten Zeile alle Bytes jeweils um 3 nach links verschoben
+- Die erste Zeile bleibt gleich
+
+#figure(
+  image("shift-rows.png"),
+  caption: [Shift Rows]
+)
+
+=== MixColumns
+Im vierten Schritt werden die Werte mittels "Matrixmultiplikation" berechnet. Die Column für jeden Wert wirt mithilfe einer Lookup Table ermittelt (Siehe @mix-cols-lookup-table).
+Möchte man den Wert in der 2. Reihe und 3. Spalte berechnen, multipliziert den ersten Wert der 3. Spalte der originalen Matrix mit dem 1. Wert der 2. Reihe der Lookup-Matrix, usw.
+Die Produkte werden dann mit XOR verküpft (Siehe @mix-cols).
+
+#figure(
+  image("mix-columns-lookup-table.png"),
+  caption: [MixColumns Lookup Table]
+)<mix-cols-lookup-table>
+
+#figure(
+  image("mix-columns.png"),
+  caption: [MixColumns]
+)<mix-cols>
+
+
+=== Mode of operations
+- Nachrichten mit genau 128-Bits sind unwahrscheinlich
+- Mode of operation = Kombination mehrerer Block-Encryption-Instanzen in zu einem nutzbaren Protokoll
+- Es gibt drei mode of operations:
+  - Electronic Code Book (ECB)
+  - Cipher Block Chaining (CBC)
+  - Counter Mode (CTR)
+
+=== Electronic Code Book (ECB)
+- Seriell Block nach Block verschlüsseln
+- Schwach für reduntante Daten: Gibt mit relativ grosser Wahrscheinlichkeit dasselbe Pattern (ECB-Pinguin, siehe @ecb-penguin)
+- ECB wird nicht empfohlen
+
+#figure(
+  image("ecb-penguin.png"),
+  caption: [ECB Pinguin]
+)<ecb-penguin>
+
+=== Cipher Block Chaining
+- Der Output jedes Cipher-Blocks XOR dem nächsten Input
+- Nicht parallelisierbar
+- Besser als ECB
+
+=== Counter Mode (CTR)
+- Einen Counter (Nonce) verschlüsseln
+- Kann parallelisiert werden
+- Es wird nicht die Nachricht selbst verschlüsselt, sondern die Nonce und wenden XOR auf die Nachricht an
+- Heutzutage Standart
+
+== Diffie-Hellmann
+- Geteiltes Geheimnis über einen unsicheren Kanal
+- Jeder Kommunikationshandshake im Internet verwendet Diffie Hellmann (z.B. TLS)
+- Kein direkter Schlüsselaustausch, nur Teile eines Schlüssels
+
+=== Diskreter Logarithmus
+$ a^b mod n = c \
+b = log_(a, n)(c) $
+
+Beispiel:
+$3^29 mod 17 &= 12 && "einfach" \
+3^x mod 17 &= 12 && "schwierig, was ist x?"$
+
+Diskrete Logarithmen sind sehr schwierig zu berechnen.
+
+=== Primitive Root eine Primzahl
+Primzahl p, g ist primitive Root, wenn $g cancel(eq.triple) g^2 mod p$
