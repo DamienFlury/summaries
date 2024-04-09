@@ -16,7 +16,7 @@ Ungewollte/unauthorisierte Aktivität wird entdeckt. Detective Access Control fu
 Wird nach der Tat angewendet, um das System zurück in den normalen Zustand zu versetzen. Beispiel: Backup
 
 - System-Reboot, Antivirus-Software (die den Virus entfernt), Backup, ...
-
+font: "Monaspace Krypton"
 == Weitere Access Control Systeme
 #figure(
   image("./access-control-types.png"),
@@ -31,7 +31,7 @@ abgeschreckt.
 === Compensating Access Control
 Wenn andere Access Control Systeme nicht ausreichen, wird dieses System eingesetzt. Es unterstützt und verstärkt die anderen Systeme.
 - Policy, die besagt, dass alle PII (Personal Identifiable Information) verschlüsselt werden muss. Zum Beispiel wird PII in einer Datenbank gespeichert, die verschlüsselt ist, jedoch werden die Daten in Klartext über das Netzwerk übertragen. Hier kann ein Compensation Control System verwendet werden.
-
+font: "Monaspace Krypton"
 === Recovery Access Control
 Eine Erweiterung von Corrective Access Control, mit fortgeschritteneren oder komplexeren Möglichkeiten.
 - Backups, System Imaging, Server Clustering, Antivirus Software, Database/VM-Shadowing, hot/cold sites, ...
@@ -527,4 +527,66 @@ $3^29 mod 17 &= 12 && "einfach" \
 Diskrete Logarithmen sind sehr schwierig zu berechnen.
 
 === Primitive Root eine Primzahl
-Primzahl p, g ist primitive Root, wenn $g cancel(eq.triple) g^2 mod p$
+Primzahl p, g ist primitive Root, wenn $g cancel(eq.triple) g^2 cancel(eq.triple) g^3, dots, g^(p-1) mod p$
+
+=== Key Exchange
++ Alice und Bob eignen sich auf eine grosse Primzahl p (Normalerweise 2048 oder 4096 Bits) und eine Primzahl g, die eine Primitve Root von p ist.
++ A und B wählen zufällige Zahlen a und b als ihre private Keys (Zahlen zwischen 1 und p).
++ A und B berechnen je einen public Key:
+  - A: $g^a mod p$
+  - B: $g^b mod p$
++ Sie tauschen diese public Keys über daz Netzwerk miteinander aus
++ Sie berechnen den shared secret Key:
+  - A: $(g^b)^a mod p = g^(a b) mod p$
+  - B: $(g^a)^b mod p = g^(a b) mod p$
++ Dieser secret Key wird auch _pre-master secret_ genannt, er wird für das Erstellen des Session Keys verwendet
+  - Der secret Key ist oft sehr gross (2048 Bit), deshalb nicht optimal für einen Session Key.
+  - Master Secret wird durch _hashed-key derivation function (HKDF)_ generiert, z.B. #text(weight: "bold", [SHA-256]).
+
+=== Beispiel
+A und B einigen sich auf $g = 3$ und $p = 29$
+- A wählt $a = 23$, $3^23 mod 29 = 8$
+- B wählt $b = 12$, $3^12 mod 29 = 16$
+- A berechnet $(g^b)^a mod 29 = 16^23 mod 29 = 24$
+- B berechnet $(g^a)^b mod 29 = 8^12 mod 29 = 24$
+Der shared secret Key ist somit 24.
+
+Nur $g$, $p$, $g^a mod p$ und $g^b mod p$ wurden öffentlich übertragen.
+
+Um den private Key zu knacken, müsste man folgendes lösen:
+
+$a &= log_(g, p)(g b)\
+b &= log_(g, p)(g a)$
+
+=== Elliptic Curve Cryptography (ECC)
+Elliptic Curves sind ein drop-in Replacement für die Mathematik des Diffie-Hellmann-Algorithmus.
+Im Browser wird dies als ECDHE (Elliptic Curve Diffie-Hellmann Ephemeral-Verfahren) bezeichnet.
+Es handelt sich um eine zweidimensionale Kurve:
+
+$y^2 = x^3 + a x + b$
+
+- Der private Key ist eine Zahl
+- Der public Key wird durch zwei Zahlen (x, y) komposiert
+- Es handelt sich wiederum um ein diskretes Logarithmus-Problem (ECDLP), es ist aber ein wenig schwieriger als das herkömmliche Verfahren.
+
+#figure(
+  image("ecc.png"),
+  caption: [Elliptic Curve]
+)
+
+Für dieselbe Key-Länge sind Elliptic Curves viel stärker (Siehe @ecc-comparison).
+
+#figure(
+  image("ecc.png"),
+  caption: [ECC vs. traditionelles Verfahren]
+)<ecc-comparison>
+
+=== Ephemeral Mode
+- Neuer Key-Exchange für jede Session
+  - Perfect Forward Secrecy
+- Jedes Mal ein neuer Key
+- Neuer Diffie-Hellmann-Algorithmus nicht für jede Nachricht, aber sehr oft:
+  - Seite neu laden
+- Wenn Keys gebrochen werden, hält dies nicht für lange, neue Keys werden bald wieder generiert.
+  - Self-Healing Property
+- Kein Handshake mit denselben Keys für Monate.
