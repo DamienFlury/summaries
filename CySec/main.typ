@@ -577,7 +577,7 @@ $y^2 = x^3 + a x + b$
 Für dieselbe Key-Länge sind Elliptic Curves viel stärker (Siehe @ecc-comparison).
 
 #figure(
-  image("ecc.png"),
+  image("ecc-comparison.png"),
   caption: [ECC vs. traditionelles Verfahren]
 )<ecc-comparison>
 
@@ -590,3 +590,39 @@ Für dieselbe Key-Länge sind Elliptic Curves viel stärker (Siehe @ecc-comparis
 - Wenn Keys gebrochen werden, hält dies nicht für lange, neue Keys werden bald wieder generiert.
   - Self-Healing Property
 - Kein Handshake mit denselben Keys für Monate.
+
+#pagebreak()
+
+= Asymmetric Cryptography
+== Drei Typen der Kryptographie:
+- Symmetrische Versschlüsselung
+  - Ein private Key für das Verschlüsseln und Entschlüsseln
+- Asymmetrische Verschlüsselung
+  - Zwei Keys: public/private
+  - Ein Key verschlüsselt und der andere Key entschlüsselt
+- Hash-Funktion
+  - Plaintext #sym.arrow Hashed Text
+
+== RSA
+RSA ist die meistverwendete Methode für public Cryptography. Es wird unter anderem verwendet für:
+- Verschlüsselung mithilfe des public Keys, nur der Besitzer des privaten Schlüssels kann die Nachricht entschlüsseln
+- Signaturen: Die Message wird mit dem private Key verschlüsselt, mit dem public Key entschlüsselt
+  - Server möchte beweisen, dass es sich um ihn handelt #sym.arrow Authentication
+
+#sym.arrow Encryption und Authentication
+
+Wie man in @symmetric-encryption sieht, müsste Alice bei der symmetrischen Verschlüsselung für jeden Kommunikationspartner einen neuen Key generieren. Es skaliert nicht.
+
+Dies kann sie durch asymmetrische Verschlüsselung lösen. Sie generiert einen private Key für sich selbst und übergibt den public Key an alle Anderen. So können alle verschlüsselte Nachrichten an Alice senden und Alice kann Nachrichten mit ihrem private Key signieren.
+
+#figure(
+  image("symmetric-encryption.png"),
+  caption: [Symmetrische Verschlüsselung]
+)<symmetric-encryption>
+
+=== Public Key
+- $e$: sehr kleine Zahl (normalerweise 2 oder 3)
+- $n$: sehr grosse Semi-Prime Zahl (Multiplikation von zwei grossen Primzahlen p, q)
+
+=== Private Key
+d
