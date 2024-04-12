@@ -543,7 +543,7 @@ Primzahl p, g ist primitive Root, wenn $g cancel(eq.triple) g^2 cancel(eq.triple
   - B: $(g^a)^b mod p = g^(a b) mod p$
 + Dieser secret Key wird auch _pre-master secret_ genannt, er wird für das Erstellen des Session Keys verwendet
   - Der secret Key ist oft sehr gross (2048 Bit), deshalb nicht optimal für einen Session Key.
-  - Master Secret wird durch _hashed-key derivation function (HKDF)_ generiert, z.B. #text(weight: "bold", [SHA-256]).
+  - Master Secret wird durch _hashed-key derivation function (HKDF)_ generiert, z.B. *SHA-256*.
 
 === Beispiel
 A und B einigen sich auf $g = 3$ und $p = 29$
@@ -659,3 +659,92 @@ RSA ist sehr schwach für kurze Nachrichten:
   - RSA ist 1000x langsamer als symmetrische Kryptographie
 
 === Signieren mit RSA
+- Verschlüsselung mit dem privaten Key
+- Integritätsverifikation der Nachricht
+  - Nachricht wird gehashed
+  - Hashing für Kürzen der Nachricht
+- Hash wird signiert und zusammen mit der Nachricht versendet
+- Empfänger hasht die Nachricht, entschlüsselt die Signatur und checkt ob die Hashes dieselben sind
+- Hashes können *nicht* entschlüsselt werden
+- Wird oft als Challenge gesendet
+  - Der Server soll seine Idenität bestätigen
+  - Der Client schickt eine Nachricht, die signiert werden soll
+  - Server signiert diese und schickt sie zurück mit dem public Key
+  - Challenge-Response-Verfahren
+  - Wichtiger Teil von TLS
+
+=== Digital Signature Algorithm (DSA)
+- RSA benötigt immer grössere Keys #sym.arrow bald zu langsam
+- DSA als Alternative
+- EC DSA (oder DSS) ist viel schneller als RSA, wird bald Standart
+  - Elliptic Curve Digital Signature Algorithm/Digital Signature Standard
+- DSA kann nur für Signaturen verwendet werden, nicht für Verschlüsselung
+- Wie RSA, aber Mathematik wie DH.
+  - Elliptic Curves
+
+== Hash Functions
+Eine Hash-Funktion nimmt eine Nachricht irgendeiner Länge und erstellt von dieser einen pseudorandom Hash einer festen Länge. So wird eine 128-Bit-Hash-Funktion immer 128-Bits produzieren. Sie ist eine one-way Function, d.h. sie sind *irreversibel*. Dabei wird immer ein Block der Message genommen und gehashed, iterativ. Wenn die Nachricht fertig ist, ist der Hash fertig (Siehe @hash).
+
+#figure(
+  image("images/hash.png"),
+  caption: [Hash]
+)<hash>
+
+Starke Hashing Functions:
+- Generieren Output, der nicht unterscheidbar ist von random Noise
+  - Output soll nicht aussehen, als würde er auf dem Input basieren
+- Bitänderungen müssen den gesamten Output verändern (Diffusion)
+  - Avalanche Effect
+
+=== Hash-Kollision
+Man versteht unter einer Hash-Kollision zwei verschiedene Inputs, die denselben Hash produzieren.
+MD5 ist komplett broken und man kann beliebige Collisions erzwingen.
+
+=== Anforderungen an eine Hash-Funktion
+- Schnell (aber sicher, d.h. nicht zu schnell)
+- Diffusion
+- Irreversibel
+- Keine Collisions
+  - Wichtig, da Hashes dazu verwendet werden, um zu verifizieren, dass Daten nicht verändert wurden.
+  - https://shattered.io
+
+=== Übersicht
+#figure(image("images/hash-functions-compared.png"))
+
+=== SHA-X
+- SHA-1 ist bereits viel besser als MD5. Nicht komplett broken aber viel schwächer mittlerweile
+- SHA-2 256 bits und 512 bits sind heutezutage Standart
+  - SHA-2 hat dieselben Funktionalitäten wie SHA-1, aber der Output ist länger, momentan keine Probleme
+- SHA-3 als Backup für SHA-2
+  - Komplett andere Funktion (Keccak Algorithmus)
+
+=== Passwörter
+Für Passwörter sind SHA-X-Algorithmen nicht gut, sie sind zu schnell. SHA wird für eine schnelle Zusammenfassung der Daten verwendet und sind verletzlich gegen Brute-Force-Attacken. Somit werden die Hashes mehrfach wiederholt:
+- PBKDF2 (Password-Based Key Derivation Function 2) verwendet einen ähnlichen Algorithmus wie SHA-2 aber wendet diesen 5000-mal an
+  - Exklusiv für Logins und Passwörter
+  - Komplett useless für andere Hash-Zwecke
+  - Anzahl Iterationen kann angepasst werden
+- Bcrypt ist eine Alternative zu PBKDF2
+  - Komplett andere Funktion, basierend auf der Cipher *blowfish*
+  - Nicht gut auf GPU (#sym.arrow Kann nicht so einfach Brute-Forced werden, wie andere die parallelisierbar sind)
+
+=== Anwendungszwecke
++ Digitale Signatur
++ Integrity (Symmetric Cryptography ist verletzlich für Tampering)
+  - Hashes können zeigen, dass die Nachricht nicht verändert wurde
+  - Message Authentication Code (MAC)
+
+=== MAC
+#figure(
+  image("images/mac-introduction.png"),
+  caption: [MAC]
+)
+- Alice fügt dem Ciphertext den Key hinzu und hasht den Ciphertext mit dem Key (#sym.arrow h(K|C))
+- Sie sendet den Ciphertext mit h(K|C) an Bob
+- Bob fügt ebenfalls dem Ciphertext den Key hinzu und hasht den Ciphertext mit dem Key (#sym.arrow h(K|C))
+- Wenn h(K|C) derselbe ist, wie der von Alice, wurde der Ciphertext nicht modifiziert \\
+- Standart-MACs sind gelegentlich gefährdet durch SHA-1/2 Length-Extension-Attacks
+- Hash-Based MAC (HMAC) ist der meistverwendete Approach, er splitted den Key in zwei und hasht zweimal
+  - Sicherer
+  - Split Key in zwei Teile und man hasht zweimal mit jedem Key
+  - Somit nicht gefährdet durch Length-Extension-Attacks
