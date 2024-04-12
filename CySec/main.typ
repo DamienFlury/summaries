@@ -1,4 +1,6 @@
 #set page(flipped: true, columns: 3)
+#set text(lang: "de")
+#set par(justify: true)
 
 = Access Control
 == Standart Access Control Systeme
@@ -16,7 +18,7 @@ Ungewollte/unauthorisierte Aktivität wird entdeckt. Detective Access Control fu
 Wird nach der Tat angewendet, um das System zurück in den normalen Zustand zu versetzen. Beispiel: Backup
 
 - System-Reboot, Antivirus-Software (die den Virus entfernt), Backup, ...
-font: "Monaspace Krypton"
+
 == Weitere Access Control Systeme
 #figure(
   image("./access-control-types.png"),
@@ -622,7 +624,38 @@ Dies kann sie durch asymmetrische Verschlüsselung lösen. Sie generiert einen p
 
 === Public Key
 - $e$: sehr kleine Zahl (normalerweise 2 oder 3)
+  - Wird für die Encryption verwendet
 - $n$: sehr grosse Semi-Prime Zahl (Multiplikation von zwei grossen Primzahlen p, q)
 
+
+RSA basiert darauf, dass die Primfaktorzerlegung von $n$ sehr schwierig ist.
+
 === Private Key
-d
+- d
+  - Wird für die Decryption verwendet
+
+=== Mathematik
+- Cyphertext: $c = m^e mod n$
+- Message: $m = c^d mod n$
+
+#sym.arrow $m^(e d) mod n = m$
+
+$d = (k dot Phi(n) + 1)/e ,k in ZZ$
+
+=== Prozess
+- Wähle $e$, generiere $n$ zufällig, berechne $d$ (Euklidischer Algorithmus)
+- Eher aufwändig, sollte selten durchgeführt werden
+- $e$ ist fast immer 3 oder 65537, $n$ ist 4096 bits
+
+=== Verschlüsselung mit RSA
+RSA ist sehr schwach für kurze Nachrichten:
+- Padding
+- Optimal Asymmetric Encryption Padding (OAEP)
+- Pseudo-Random Padding, fügt einen IV (Initialization Vector) dazu und hashed
+- Der Empfänger muss nach der Entschlüsselung dasselbe Padding beachten
+- Verschlüsselung mit RSA ist selten
+  - TLS hat früher RSA verwendet, aber verwendet heutzutage DH
+  - Signaturen geschehen mit RSA
+  - RSA ist 1000x langsamer als symmetrische Kryptographie
+
+=== Signieren mit RSA
