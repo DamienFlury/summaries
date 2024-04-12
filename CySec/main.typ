@@ -21,7 +21,7 @@ Wird nach der Tat angewendet, um das System zurück in den normalen Zustand zu v
 
 == Weitere Access Control Systeme
 #figure(
-  image("./access-control-types.png"),
+  image("./images/access-control-types.png"),
   caption: [Access Control Types],
 )
 === Deterrent Access Control
@@ -46,7 +46,7 @@ Hier wird dem Subjekt gesagt, was er tun soll, und was nicht. Beispiel: "Bitte g
 == Zugriff auf Assets konrtollieren
 
 #figure(
-  image("./access-control-layers.png"),
+  image("./images/access-control-layers.png"),
   caption: [Access Control Layers]
 )
 
@@ -62,7 +62,7 @@ Policiesm, Verfahren und Richtlinien einer Organisation, die den Zugriff auf Sys
 
 = Schritte der Zugriffskontrolle
 #figure(
-  image("./access-control-steps.png"),
+  image("./images/access-control-steps.png"),
   caption: [Access Control Steps]
 )
 
@@ -78,7 +78,7 @@ Bei der Authentication wird eine weitere Information benötigt, die zur Identit�
 Authentisierungsinformationen sind privat.
 
 #figure(
-  image("./authentication_authorisation.png"),
+  image("./images/authentication_authorisation.png"),
   caption: [Authentisierung und Authorisation],
   placement: auto
 )
@@ -153,7 +153,7 @@ Ein Token Device/Hardware Token ist ein kleines Gerät, das Passwörter generier
 - Beispiel: Bancomat
 
 #figure(
-  image("./auth-factors-comparison.png"),
+  image("./images/auth-factors-comparison.png"),
   caption: [Authentication Factors Comparison],
 )<auth-factors>
 
@@ -275,7 +275,7 @@ Ein Token Device/Hardware Token ist ein kleines Gerät, das Passwörter generier
 
 == Hash Function
 #figure(
-  image("./hash-function.png"),
+  image("./images/hash-function.png"),
   placement: auto,
   caption: [Hash Function]
 )<hash-functions>
@@ -303,7 +303,7 @@ Ein Token Device/Hardware Token ist ein kleines Gerät, das Passwörter generier
 
 == Die drei Typen der Kryptographie
 #figure(
-  image("./types-of-cryptography.png"),
+  image("./images/types-of-cryptography.png"),
   caption: "Drei Typen der Kryptographie"
 )
 
@@ -311,7 +311,7 @@ Ein Token Device/Hardware Token ist ein kleines Gerät, das Passwörter generier
 Zunächst liegt eine Nachricht in Plaintext vor. Diese kann der Sender mithilfe eines kryptografischen Algorithmus in Ciphertext umwandeln (Encryption). Der Empfänger kann den Ciphertext durch Decryption wieder in Plaintext umwandeln.
 
 #figure(
-  image("./encryption-decryption.png"),
+  image("./images/encryption-decryption.png"),
   caption: "Encryption und Decryption"
 )
 
@@ -377,7 +377,7 @@ Unter einem SPN versteht man einen Algorithmus, der wiederholend Substitution un
 == Die Bedeutung von XOR
 Eine Bitfolge B kann bestimmen, wie sich de Plaintext A verhält: Ist an einer Position eine 1, wird das Gegenteil vom Bit von A genommen. Ist an einer Position eine 0, bleibt das Bit von A unverändert. B ist ein Key, welcher entscheidet ob A verändert wird oder nicht.
 
-#figure(image("./xor.png"), caption: "XOR")
+#figure(image("./images/xor.png"), caption: "XOR")
 
 #table(columns: 3,
   [A], [B], [O],
@@ -418,7 +418,7 @@ Doppeltes Anwenden von XOR kehrt die Operation um: $A xor B xor A = B$, $A xor B
 Es kann ein One-Time Pad approximiert werden, mit einem undendlichen pseudo-random Keystream. Stream-Ciphers funktionieren auf Nachrichten mit beliebiger Länge.
 
 #figure(
-  image("./stream-cipher.png"),
+  image("./images/stream-cipher.png"),
   caption: "Stream Cipher"
 )
 
@@ -439,7 +439,7 @@ Der Advanced Encryption Standard (AES) ist ein Block Cipher, der 128-Bit Blöcke
 Man kann von einem Mapping eine Basic Permutation Box zeichnen wie in @basic-permutation-box.
 
 #figure(
-  image("./basic-permutation-box.png"),
+  image("./images/basic-permutation-box.png"),
   caption: "Basic Permutation Box"
 )<basic-permutation-box>
 
@@ -464,7 +464,7 @@ In diesem Schritt wird:
 - Die erste Zeile bleibt gleich
 
 #figure(
-  image("shift-rows.png"),
+  image("images/shift-rows.png"),
   caption: [Shift Rows]
 )
 
@@ -474,12 +474,12 @@ Möchte man den Wert in der 2. Reihe und 3. Spalte berechnen, multipliziert den 
 Die Produkte werden dann mit XOR verküpft (Siehe @mix-cols).
 
 #figure(
-  image("mix-columns-lookup-table.png"),
+  image("images/mix-columns-lookup-table.png"),
   caption: [MixColumns Lookup Table]
 )<mix-cols-lookup-table>
 
 #figure(
-  image("mix-columns.png"),
+  image("images/mix-columns.png"),
   caption: [MixColumns]
 )<mix-cols>
 
@@ -498,7 +498,7 @@ Die Produkte werden dann mit XOR verküpft (Siehe @mix-cols).
 - ECB wird nicht empfohlen
 
 #figure(
-  image("ecb-penguin.png"),
+  image("images/ecb-penguin.png"),
   caption: [ECB Pinguin]
 )<ecb-penguin>
 
@@ -572,14 +572,14 @@ $y^2 = x^3 + a x + b$
 - Es handelt sich wiederum um ein diskretes Logarithmus-Problem (ECDLP), es ist aber ein wenig schwieriger als das herkömmliche Verfahren.
 
 #figure(
-  image("ecc.png"),
+  image("images/ecc.png"),
   caption: [Elliptic Curve]
 )
 
 Für dieselbe Key-Länge sind Elliptic Curves viel stärker (Siehe @ecc-comparison).
 
 #figure(
-  image("ecc-comparison.png"),
+  image("images/ecc-comparison.png"),
   caption: [ECC vs. traditionelles Verfahren]
 )<ecc-comparison>
 
@@ -618,7 +618,7 @@ Wie man in @symmetric-encryption sieht, müsste Alice bei der symmetrischen Vers
 Dies kann sie durch asymmetrische Verschlüsselung lösen. Sie generiert einen private Key für sich selbst und übergibt den public Key an alle Anderen. So können alle verschlüsselte Nachrichten an Alice senden und Alice kann Nachrichten mit ihrem private Key signieren.
 
 #figure(
-  image("symmetric-encryption.png"),
+  image("images/symmetric-encryption.png"),
   caption: [Symmetrische Verschlüsselung]
 )<symmetric-encryption>
 
