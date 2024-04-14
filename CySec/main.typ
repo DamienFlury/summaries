@@ -748,3 +748,77 @@ Für Passwörter sind SHA-X-Algorithmen nicht gut, sie sind zu schnell. SHA wird
   - Sicherer
   - Split Key in zwei Teile und man hasht zweimal mit jedem Key
   - Somit nicht gefährdet durch Length-Extension-Attacks
+
+= Transport Layer Security
+TLS unterstützt:
+- Confidentiality (Encryption)
+- Integrity (HMAC)
+- Authentication (Server, optional Client, Zertifikate)
+
+== Übersicht
+#figure(
+  image("images/tls-overview.png"),
+  caption: [TLS Übersicht]
+)
+
+Urspünglich hiess TLS "Secure Socket Layer (SSL)", heisst aber seit SSL v3.0 "TLS" (aktuell v1.3).
+SSL/TLS ist ein *Netzwerksicherheitsprotokoll* für das Aufsetzen von authentisierten und verschlüsselten Verbindungen und Datenaustausch.
+
+#box(fill: rgb("#444444"), inset: 1em, text(fill: white, [TLS ist der primäre Mechanismus für die Verschlüsselung von HTTP-Kommunikation (HTTPS)]))
+
+- TLS kann auch für andere Protokolle verwendet werden
+- Kann für Applikationen tranparent sein
+- Kann embedded werden in spezifische Pakete
+
+== Connection und Session
+- TLS Connection
+  - Transport, welcher einen passenden Type of Service anbietet
+  - Peer-to-Peer
+  - Connections sind flüchtig (transient)
+  - Jede Verbindung ist mit einer eigenen Session verknüpft
+- TLS Session
+  - Eine Verbindung zwischen Cleint und Server über ein Handshake Protokoll
+  - Definiert ein Set von kryptographischen Sicherheitsparametern, welche an mehrere Verbindungen geteilt werden können
+  - Es müssen nicht für jede Verbindungen neue Sicherheitsparameter verhandelt werden
+
+== TLS 1.3 (RFC 8446, August 2018)
+- Clean up: Unsichere oder nicht verwendete Funktionen entfernt
+  - Legacy & Broken Crypto: (3)DES, RC4, MD5, SHA1, Kerberos, RSA PKCS\#1v1.5. Key Transport
+  - Cipher Suites von > 100 auf 5 reduziert
+  - Broken Features: Compression und Renegotiation
+  - Statischer RSA/DH entfernt
+- Performance: 1-RTT und 0-RTT Handshakes
+- Sicherheit verbessert
+- Privacy: Fast alle Handshake-Messages werden verschlüsselt
+- Continuity: Backwards Compatibility
+
+== TLS-Record-Structure
+#figure(
+  image("images/tls-frame-structure.png"),
+  caption: [TLS Framestruktur (Wireshark)]
+)
+
+HTTPS-Content-Types:
+- Handshake Protocol (22): ClientHello, ServerHello, Certificate, ServerHelloDone
+- Change CipherSpec Protocol (20)
+- Alert Protocol (21): Warning, Fatal (Session wird auf der Stelle beendet)
+- Application Protocol (23): Verschlüsselter Payload wird versendet (Transmission)
+
+== TLS-Handshake
+- Bevor Applikationsdaten übermittelt werden
+- Server und Client:
+  - Authentisieren sich gegenseitig
+  - Verhandeln Verschlüsselungs- und MAC-Algorithmen
+  - Verhandeln Schlüssel
+- Vier Phasen:
+  + Sicherheitsfähigkeiten aushandeln (TLS Version, etc.)
+  + Server kann Zertifikat schicken, Schlüsselaustausch und Anforderung eines Zertifikats
+  + Client sendet Client-Zertifikat, wenn angefordert. Client sendet Schlüsselaustausch.
+  + Änderung der Cipher Suite (ChangeCipherSpec) und Abschluss des Handshake Protokolls
+
+== RSA Public Key Encryption ohne Perfect Forward Secrecy (Legacy, v1.2)
+- Problematisch, da Pakete jetzt mitgehört werden können und später entschlüsselt werden können (Quantencomputing)
+- RSA Keyaustausch
+
+== Ephemeral Diffie-Hellmann (DHE) Key Exchange (Perfect Forward Secrecy, v1.3)
+- Diffie-Hellmann Key Exchange
