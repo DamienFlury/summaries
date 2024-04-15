@@ -23,6 +23,8 @@ a = 5 -- β-Reduction
 ```
 
 == Eta-Reduction
+$(lambda x.f x) = f$
+
 ```hs
 add5 xs = map (\x -> x + 5) xs
 add5' = map(\x -> x + 5) -- η-Reduction
