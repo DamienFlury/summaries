@@ -822,3 +822,37 @@ HTTPS-Content-Types:
 
 == Ephemeral Diffie-Hellmann (DHE) Key Exchange (Perfect Forward Secrecy, v1.3)
 - Diffie-Hellmann Key Exchange
+
+= Complete Cryptographic Systems
+== Digitale Signaturen
+- Hashes werden zusammen mit RSA/DSA verwendet, um Signaturen zu bilden
+- Mit Signaturen kann der Sender seine Authenticity beweisen
+
+#figure(
+  image("images/signing.png"),
+  caption: [Digitale Signatur]
+)
+
+== Digitale Zertifikate
+Die Signatur beweist nur, dass der Server den private Key hat, aber jeder kann einen private Key erstellen. Deshalb braucht es Zertifikate, welche über eine Drittpartei (normalerweise via PKI) die Herkunft des Schlüssels beweist.
+
+Der Server erstellt eine Certificate Signing Request (CSR) und sendet diese an eine Certification Authority (CA)#footnote[E.g. Geotrust, Globalsign, Digicert, Godaddy, letsencrypt, Google].
+
+Die CA macht ein paar Identitätschecks und signiert das Zertifikat mit seinem private Key. Dann schickt es das signierte Zertifikat zurück an den Server.
+
+$ "Cert"("CA", A) = {"ID"_"CA", "ID"_A, "e"_A, T, "Ext", "sig"_"CA"} $
+$ "sig"_"CA" = d_"CA" [h("ID"_"CA", "ID"_A, e_A, T, "Ext")] $
+
+- $"ID"_"CA" =$ Eindeutiger Name der CA
+- $"ID"_A =$ Eindeutiger Name des Teilnehmers A (server.com)
+- $e_A =$ Öffentlicher Schlüssel
+- $T =$ Gültig bis $T$
+- Ext = Optionale Extensions
+
+#figure(
+  image("images/certificate.png"),
+  caption: [Digitales Zertifikat]
+)
+
+Der Server sendet dann beim TLS-Handshake die Signatur. Dazu entschlüsselt er zunächst die Signatur mithilfe des public Keys $e_A$.
+
