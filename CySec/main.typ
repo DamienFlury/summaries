@@ -855,4 +855,3 @@ $ "sig"_"CA" = d_"CA" [h("ID"_"CA", "ID"_A, e_A, T, "Ext")] $
 )
 
 Der Server sendet dann beim TLS-Handshake die Signatur. Dazu entschlüsselt er zunächst die Signatur mithilfe des public Keys $e_A$.
-

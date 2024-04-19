@@ -182,3 +182,80 @@ Als 32-Bit-Gleitkommazahl: $0'10000001'100100000000000000000000$
   - Signifikand um 1 nach rechts schieben
 
 #image("float-addition.png")
+
+= Gruppe, Ring und Körper
+== Körper
+Ein Ring ist ein Körper, wenn:
+#enum(numbering: "a)",
+[Jedes Element des Rings (ausser der 0) ein multiplikatives Inverses hat],
+[Die Multiplikation kommutativ ist: $a b = b a$ (Abel'sche Gruppe)],
+[Das Distributivgesetz gilt: $a(1 - b) = a - a b$],
+[Wenn er eine 1 hat (multiplikatives neutrales Element)])
+
+Wir definieren Mengen wie:
+- $ZZ_2 = {0, 1}$
+- $ZZ_5 = {0, 1, 2, 3, 4}$
+- $ZZ_M = {0, 1, 2, ..., M - 1}$
+
+Um die Abgeschlossenheit sicherzustellen, verwenden wir Operationen zusammen mit Modulo M. Beispiel:
+
+$ ZZ_5 = {1, 2, 3, 4, 5} \
+3 dot 4 = 12, 12 in.not ZZ_5 \
+12 mod 5 = 2, 2 in ZZ_5 $
+
+Codewörter können als Elemente eines endlichen Ganzzahlkörpers betrachtet werden. In der Informatik bewegen wir uns in $ZZ_2$. Die Anzahl der darstellbaren Codewörter wird durch die Codewortlänge bestimmt.
+- Byte: $8 "Bit"$
+- Word: $16, 32, 64 "Bit"$
+- TCP-Paket: $1024 "Bit"$
+
+Im endlichen Ganzzahlkörper gibt es immer eine grösste und eine kleinste Zahl. Die Darstellung dieser Zahl kann durch Speicher oder Definition der Wortgrösse begrenzt werden #sym.arrow Keine Unendlichkeit.
+
+== Interpretation eines Codewortes
+Ein Codewort $1001$ kann auf verschiedene Arten interpretiert werden:
+- Als Tupel (1, 0, 0, 1)
+- Als Zahl $1001_2 = 9_10$. Es gelten die üblichen Operationen der Ganzzahlrechnung.
+- Als Vektor $mat(1, 0, 0, 1)^T$. Es gelten die üblichen Operationen der Vektorrechnung.
+- Als Polynom: $g(u) = u^3 + 1$. Es gelten die üblichen Operationen der Polynomrechnung.
+
+Die obigen Darstellungsformen sind äquivalent und beschreiben alle dasselbe Codewort. Alle Berechnungen erfolgen in $ZZ_2$.
+
+== Interpretation eines Codewortes als Vektor
+
+Vektorraum $ZZ_2^3$:
+
+$ vec(1, 1, 0) + vec(0, 0, 1) + vec(0, 0, 1) equiv vec(1, 1, 0) mod 2 $
+
+Vektoren werden in der Codierung zur Fehlererkennung und -behebung verwendet.
+
+== Interpretation als Polynom
+
+Codewort $100101$ als Polynom:
+$ 1u^5 + 0u^4 + 0u^3 + 1u^2 + 0u^1 + 1u^0 = u^5 + u^2 + u^0 $
+
+Multiplikation zweier Polynome in $ZZ_2$:
+
+$ (u^5 + u^2 + u^0)(u^2 + u^0) mod 2 \
+= (u^7 + u^5 + u^4 + 2u^2 + u^0) mod 2 \
+= u^7 + u^5 + u^4 + 1 $
+
+Das resultierende Codewort ist $1011#h(2pt)0001$.
+
+== Zyklische Gruppe
+Polynom $f(x) = x^3 + x + 1$, hat nach Fundamentalsatz der Algebra 3 Nullstellen. Die Frage ist nun, ob das Polynom in $ZZ_2$ eine Lösung hat.
+
+Eine zyklische Gruppe (gemäss Évariste Galois (1811 - 1832)):
+- Wird von einem einzigen Element erzeugt
+- Besteht nur aus Potenzen des Erzeugers
+- Das erzeugende Element $a$ wird als Lösung eingesetzt: $f(a) = a^3 + a + 1$
+
+$
+a &= a \
+a^2 &= a^2 \
+a^3 &= a + 1 && "Umstellung" f(a) "in" ZZ_2 \
+a^4 &= a(a + 1) = a^2 + a \
+a^5 &= a(a^2 + a) = a^3 + a^2 = a^2 + a + 1 \
+a^6 &= a(a^2 + a + 1) = a^2 + 2a + 1 = a^2 + 1 \
+a^7 &= a(a^2 + 1) = 1 \
+a^8 &= a && "Zyklus beginnt von vorne"
+$
+
