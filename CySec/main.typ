@@ -855,3 +855,113 @@ $ "sig"_"CA" = d_"CA" [h("ID"_"CA", "ID"_A, e_A, T, "Ext")] $
 )
 
 Der Server sendet dann beim TLS-Handshake die Signatur. Dazu entschlüsselt er zunächst die Signatur mithilfe des public Keys $e_A$.
+
+= Public Key Infrastructure (PKI)
+Alles basiert auf _Trust_ im digitalen Zeitalter. Momentane Probleme in der digitalen Ökonomie sind:
+- Fragmentation
+- Lack of interoperability
+- Steigerung der Cyberkriminalität
+- eID und Trust Services haben ein gemeinsames Sicherheitsfundament
+
+Wenn eine HTTPS-Verbindung auf ost.ch stattfindet, wird Public Key Cryptography für die Authentication, Verschlüsselung und digitale Signaturen verwendet. Wichtige Fragen sind:
+- Ist dies tatsächlich der Schlüssel für www.ost.ch?
+- Ist der Key verwendet worden, um zu signieren?
+
+Public Key als String von Bits:
+- Wem gehört dieser Bit-String?
+- Für welche Zwecke kann er verwendet werden?
+- Ist er noch immer valid?
+
+PKI soll eine Antwort auf all diese Fragen liefern.
+
+- PKI wird verwendet, um einen Public Key zu einer Identität zu binden
+- Die Bindings passieren über:
+  - Einen Registrierungsprozess einer Registration Authority (RA) und
+  - Eine Issuance eines Zertifikats durch eine Certificate Authority (CA)
+- Die CA kann durch eine unabhängige Validation Authority (VA) validiert werden
+- Das Artifact einer Bindung nennt sich das Zertifikat
+
+#figure(
+  image("images/pki-overview.png"),
+  caption: [Public Key Infrastructure (PKI)]
+)
+
+== Geschichte
+- X.500 ist die Menge der Netzwerkstandarts, die elektronische Directory-Services abdeckt (1988)
+- X.509 ist der Standart für das Format von Public Key Zertifikaten (1988)
+- X.509v3 Profiles sind die meistverwendeten.
+
+== Public Key Certificate
+- Ein elektronisches Dokument, welcher die Ownership eines Public Keys beweist
+- Enthält Informationen über den Schlüssel
+- Enthält Informationen über den Besitzer des Schlüssels (Subjekt)
+- Enthält Informationen über die CA, die das Zertifikat signiert hat (Issuer)
+
+== Felder eines Zertifikats
+- Version
+- Serial Number: Eindeutige Nummer des Zertifikats
+- Signature Algorithm: Algorithmus, der für die Signatur von der CA verwendet wurde
+- Issuer Distinguished Name (DN): Name der CA
+- Gültig von/bis
+- Public Key
+- Key Usage: Für welche Zwecke der Schlüssel verwendet werden kann
+- Extended Key Usage (EKU): serverAuth, clientAuth, codeSigning, emailProtection, timeStamping, OCSPSigning
+
+
+== Vier Kategorien
+Abhängig vom Typ der Checks, die durchgeführt werden:
+- Domain Validated (DV): Issued nachdem der Domain-Besitz bestätigt wurde
+- Organisation Validated (OV): Issued nachdem die Organisation bestätigt wurde (Company name, domain name, etc. durch öffentliche Datenbanken)
+- Extended Validation (EV): Issued nachdem die Entität eine strikte Authentisierungsprüfung durchlaufen hat
+- Qualified Website Authentication Certificate (QWAC): Ein qualifiziertes Zertifikat (eIDAS, PSD2 Regulation)
+
+== Validitätsinformatinonen erhalten:
+- Certificate Revocation List (CRL): Liste von Zertifikaten, die nicht mehr gültig sind
+  - CRL DIstribution Point im Zertifikat
+  - Wird von den meisten Browsern geprüft
+- Online Certificate Status Protocol (OCSP):
+  - Authority Information Access (AIA)-Feld im Zertifikat zeigt, wie Informationen über die CA erhalten werden können
+
+Desweiteren
+- Certificate Policies:
+  - Link zu den Regeln der CA
+  - Jedes CA hat eigene Policies
+- Authority Key Identifier (AKI):
+  - Key-Identifier des CA-Zertifikats, welches das TLS-Zertifikat signiert hat
+- Subject Alternative Name (SAN): Weitere Informationen über den Besitzer des Zertifikats
+- Subject Key Identifier (SKI): Hash-Wert des Zertifikats, wird verwendet, um die Identität des Zertifikats zu überprüfen
+
+== Trust Service Provider (TSP)
+Erstellt Trust zwischen Kommunikationspartnern:
+- Trusted Identity Information
+- Secure Authentication
+- Integrity Protected Communication
+- Encrypted Communication
+
+== Certificate Issuance
+- Der Subscriber (Die Entität, die das Key-Pair besitzt, wessen public Key ein Zertifikat erhalten soll) sendet eine Certificate Signing Request (CSR) an die CA
+- CSR enthält Informationen über das Onjekt des Subscribers, den public Key (welcher signiert werden soll) und Informationen über Key-Type und Länge
+- CSR wird im Base64-Format an die CA gesendet
+- CA registriert den Request, prüft die Daten und signiert den CSR (#sym.arrow X.509-Zertifikat)
+
+== CA Hierarchy
+- Root CA: Trust-Anchor der PKI.
+- Issuing CA: CA, die Zertifikate für End-Entities signiert (Auch Intermediate CA, Subordinate CA)
+
+#figure(
+  image("images/ca-hierarchy.png"),
+  caption: [CA Hierarchy]
+)
+
+== Trust mit Zertifikaten
+- PKI ist vertrauenswürdig mit allem im Trust Store
+- Es können hunderte von Root-Zertifikaten auf der Client-Maschine sein
+- Certificate Pinning: Client speichert den public Key des Servers und vertraut nur diesem Key
+  - Operatoren pinnen die CA issuers, public Keys oder End-Entity-Zertifikate. Clients vertrauen nur diesen Zertifikaten.
+
+== Certificate Pinning
+- 2011 Google Chrome
+- HTTP Public Key Pinning (HPKP)
+- Risiken:
+  - Key Compromise nicht entdeckt
+  - Hackers können eigene HPKP auf komprimierten Servern setzen
