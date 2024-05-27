@@ -1,6 +1,7 @@
-#set page(flipped: true, columns: 3)
-#set text(lang: "de")
+#set page(flipped: true, columns: 3, numbering: "1")
+#set text(lang: "de", font: "EB Garamond")
 #set par(justify: true)
+#set figure(placement: auto)
 
 = Access Control
 == Standart Access Control Systeme
@@ -33,7 +34,6 @@ abgeschreckt.
 === Compensating Access Control
 Wenn andere Access Control Systeme nicht ausreichen, wird dieses System eingesetzt. Es unterstützt und verstärkt die anderen Systeme.
 - Policy, die besagt, dass alle PII (Personal Identifiable Information) verschlüsselt werden muss. Zum Beispiel wird PII in einer Datenbank gespeichert, die verschlüsselt ist, jedoch werden die Daten in Klartext über das Netzwerk übertragen. Hier kann ein Compensation Control System verwendet werden.
-font: "Monaspace Krypton"
 === Recovery Access Control
 Eine Erweiterung von Corrective Access Control, mit fortgeschritteneren oder komplexeren Möglichkeiten.
 - Backups, System Imaging, Server Clustering, Antivirus Software, Database/VM-Shadowing, hot/cold sites, ...
@@ -965,3 +965,47 @@ Erstellt Trust zwischen Kommunikationspartnern:
 - Risiken:
   - Key Compromise nicht entdeckt
   - Hackers können eigene HPKP auf komprimierten Servern setzen
+
+= Authentication Schemes
+== Basic Authentication
+Übertragung der Credentials via Plaintext: Man in the Middle Attacks
+
+== One Time Passwords
+Passwörter, die generiert werden und nur einmal verwendet werden können. MITM möglich, jedoch nur kurzfristig, z.B. Session-Hijacking. Dasselbe Passwort kann aber nicht wiederverwendet werden.
+
+== Challenge-Response-Verfahren
+
+Der User kennt bereits seine $"ID"_U$ und generiert einen Random-Wert $R_U$.
+Der Server sendet einen Random-Wert $R_S$ an den User. Dieser generiert dann aus $R_S$, $R_U$, $"ID"_U$ und einer vordefinierten *Keyed Hash Function* und einem Key eine MAC. Er sendet diese MAC dann zurück an den Server. Der Server macht denselben Durchlauf und überprüft, ob die beiden MACs dieselben sind (siehe @challenge-response).
+
+#figure(image("./images/challenge-response.png"), caption: [Challenge-Response-Verfahren])<challenge-response>
+
+=== Challenge-Response based on Digital Signatures
+Derselbe Prozess wie beim herkömmlichen Challenge-Response-Verfahren, nur wird hier der Hash vor der Übertragung verschlüsselt (Siehe @challenge-response-signed).
+
+#figure(image("./images/challenge-response-signature.png"), caption: [Challenge-Response-Verfahren mit Digitaler Signatur])<challenge-response-signed>
+
+
+== Kerberos
+=== Ablauf (Simplifiziert)
+Siehe @kerberos.
++ Alice hashed ihr Passwort: $"MKey"_A$
++ A. verschlüsselt mit diesem Hash die aktuelle Uhrzeit: $E("time", "MKey"_A)$
++ A. sendet diesen Wert an den Key an das Key Distribution Center (KDC)
++ KDC entschlüsselt den Wert mit dem Hash von Alice: $D(E("time", "MKey"_A), "MKey"_A)$ und prüft, ob die Zeit gültig ist
++ KDC generiert einen Session Key $S_"AB"$ und verschlüsselt diesen mit dem Hash von A.: $E(S_"AB", "MKey"_A)$
++ KDC gen. Ticket: $E({ "Alice", S_"AB"}, "MKey"_B)$
++ KDC sendet verschlüsselten Session Key und Ticket an A.
++ A. entschlüsselt den Session Key
++ A. verschlüsselt die aktuelle Zeit mit dem Session Key und sendet dies zusammen mit dem Ticken an B.
+
+#figure(image("./images/kerberos.png"), caption: [Kerberos])<kerberos>
+
+== Anonymous Key Exchange
+Generieren eines Keys mithilfe von Diffie-Hellman.
+
+== Certificate-Based Server Authentication
+Der Server sendet sein Zertifikat an den Client. Der Client überprüft die Idenität des Servers und sendet dann das Passwort verschlüsselt an den Server, wenn der Server authentifiziert ist.
+
+== Mutual Public Key Authentication
+Der Client authentifiziert sich mit seinem Client-Zertifikat und macht eine Signatur mit seinem private Key. Der Server überprüft die Signatur des Clients. Gleichzeitig sendet der Server sein Zertifikat an den Client, welcher die Signatur des Servers überprüft.
