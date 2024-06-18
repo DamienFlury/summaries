@@ -188,3 +188,223 @@ InjectableValues inject = new InjectableValues.Std()
 Book[] books = new ObjectMapper().reader(inject)
   .forType(new TypeReference<Book[]>(){}).readValue(jsonString);
 ```
+
+= Generics
+== Iterator
+```java
+for (Iterator<String> it = list.iterator(); it.hasNext(); ) {
+  String s = it.next();
+  System.out.println(s);
+}
+```
+
+=== Iterable und Iterator
+#grid(columns: 2, gutter: 2em, 
+```java
+interface Iterable<T> {
+  Iterator<T> iterator();
+}
+```,
+```java
+interface Iterator<T> {
+  boolean hasNext();
+  T next();
+}
+```
+)
+
+Klassen, die `Iterable` implementieren, können in einer enhanced `for`-Schleife verwendet werden:
+
+== Generische Methoden
+```java
+public static <T> Stack<T> multiPush(T value, int times) {
+  var result = new Stack<T>();
+  for(var i = 0; i < times; i++) {
+    result.push(value);
+  }
+  return result;
+}
+```
+Typ wird am Kontext erkannt:
+```java
+Stack<String> stack1 = multiPush("Hallo", 3);
+Stack<Double> stack2 = multiPush(3.141, 3);
+```
+Generics mit Type-Bounds verwenden immer `extends`, kein `implements`.
+
+Vorsicht:
+```java
+private static <T extends Comparable<T>> T majority(T x, T y, T z) {
+  // ...
+}
+// ...
+Number n = majority(1, 2.4232, 3); // Compilerfehler
+Main.<Number>majority(1, 2.4232, 3); // Eigentlich OK, aber Number hat keine Comparable-Implementierung
+```
+
+Erstellung eines Type T geht nicht:
+```java
+T t = new T(); // Compilerfehler
+T[] array = (T[]) new Object[10]; // Funktioniert
+```
+
+Die JVM hat keine Typinformationen zur Laufzeit #sym.arrow Non-Reifiable Types, Type-Erasure.
+
+So laufen:
+- Alte, nicht generische Programme auf neuen JVMs
+- Neue, generische Programme auf alten JVMs
+- Alter, nicht generischer Code kompiliert mit neuen Compilern
+
+== Unterschied Comparable
+```java
+<T extends Comparable<T>> T max(T x, T y) {
+  return x.compareTo("lmaooo") > 0 ? x : y; // Compilerfehler
+}
+```
+```java
+<T extends Comparable> T max(T x, T y) {
+  return x.compareTo("lmaooo") > 0 ? x : y; // OK
+}
+```
+
+== Wildcards
+```java
+public static void printAnimals(List<? extends Animal> animals) {
+  for (Animal animal : animals) {
+    System.out.println(animal.getName());
+  }
+}
+public static void main(String[] args) {
+  List<Animal> animalList = new ArrayList<>();
+  printAnimals(animalList);
+  List<Cat> catList = new ArrayList<>();
+  printAnimals(catList);
+}
+```
+
+== Variance
+#table(columns: 5, stroke: none, table.header([], [*Typ*], [*Kompatible Typ-Argumente*], [*Lesen*], [*Schreiben*]), [*Invarianz*], [`C<T>`], [T], [Ja], [Ja], [*Kovarianz*], [`C<? extends T>`], [T und Subtypen], [Ja], [Nein], [*Kontravarianz*], [`C<? super T>`], [T und Basistypen], [Nein], [Ja], [*Bivarianz*], [`C<?>`], [Alle], [Nein], [Nein])
+
+== Generics vs ArrayList
+```java
+ArrayList<String> stringsArray = new ArrayList<>();
+ArrayList<Object> objectsArray = stringsArray; // Compilerfehler
+
+String[] stringsArray = new String[10];
+Object[] objectsArray = stringsArray; // OK
+objectsArray[0] = Integer.valueOf(2); // Exception
+```
+
+Kompiliert nicht mit Subtypen:
+```java
+Object[] objectsArray = new Object[10];
+String[] stringsArray = objectsArray; // Compilerfehler
+```
+
+=== Kovarianz
+```java
+Stack<? extends Graphic> stack = new Stack<Rectangle>();
+stack.push(new Graphic()); // nicht erlaubt
+stack.push(new Rectangle()); // auch nicht erlaubt
+```
+#sym.arrow Kovariante generische Typen sind *readonly*.
+
+=== Kontravarianz
+```java
+public static void addToCollection(List<? super Integer> list, Integer i) {
+  list.add(i);
+}
+
+List<Object> objects = new ArrayList<>();
+addToCollection(objects, 1); // OK
+```
+
+Lesen aus Collection mit Kontravarianz ist nicht möglich:
+```java
+Stack<? super Graphic> stack = new Stack<Object>();
+stack.add(new Object()); // Nicht OK, Object ist kein Graphic
+stack.add(new Circle()); // OK
+Graphic g = stack.pop(); // Compilerfehler
+```
+
+=== PECS
+> Producer Extends, Consumer Super
+```java
+<T> void move(Stack<? extends T> from, Stack<? super T> to) {
+  while (!from.isEmpty()) {
+    to.push(from.pop());
+  }
+}
+```
+
+=== Bivarianz
+Schreiben nicht möglich, Lesen mit Einschränkungen:
+```java
+static void appendNewObject(List<?> list) {
+  list.add(new Object()); // Compilerfehler
+}
+```
+
+```java
+public static void printList(List<?> list) {
+  for (Object elem: list) {
+    System.out.print(elem + " "); // OK
+  }
+  System.out.println();
+}
+```
+
+= Annotations und Reflection
+Beispiele für Annotations:
+- `@Override`
+- `@Deprecated`
+- `@SuppressWarnings(value = "unchecked")`
+- `@FunctionalInterface`
+
+== Implementation von Annotations
+```java
+@Target(ElementType.METHOD) // oder TYPE, FIELD, PARAMETER, CONSTRUCTOR
+@Retention(RetentionPolicy.RUNTIME) // oder SOURCE, CLASS
+public @interface Profile { }
+```
+
+== Reflection
+```java
+Class c = "foo".getClass();
+Class c = Boolean.class;
+```
+
+Wichtige Methoden von `Class`:
+- ```java public Method[] getDeclaredMethods() throws SecurityException```
+- ```java public Constructor<?>[] getDeclaredConstructors() throws SecurityException```
+- ```java public Field[] getDeclaredFields() throws SecurityException```
+
+=== Methoden
+- ```java public String getName()```
+- ```java public Object invoke(Object obj, Object... args)``` 
+
+=== Auswahl annotierter Methoden
+```java
+for (var m : methods) {
+  if(m.isAnnotationPresent(Profile.class)) {
+    PerformanceAnalyzer.profileMethod(testFunctions, m, new Object[] {array});
+  }
+}
+```
+
+=== Aufruf und Profiling der Methoden
+```java
+public class PerformanceAnalyzer {
+  public static void profileMethod(Object object, Method method, Object[] args) {
+    long startTime = System.nanoTime();
+    try {
+      method.invoke(object, args);
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      e.printStackTrace();
+    }
+    long endTime = System.nanoTime();
+    long elapsedTime = endTime - startTime;
+    System.out.println(method.getName() + " took " + elapsedTime + " nanoseconds to execute.");
+  }
+}
+```
