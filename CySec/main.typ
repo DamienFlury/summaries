@@ -57,7 +57,7 @@ Physikalische Barrieren innerhalb einer Einrichtung:
 Hardware/Software-Mechanismen, die den Zugriff auf Systeme und Daten kontrollieren:
 - Passwörter, Biometrie, Firewalls, Intrusion Detection Systems, Routers, ...
 === Administrative Controls
-Policiesm, Verfahren und Richtlinien einer Organisation, die den Zugriff auf Systeme und Daten kontrollieren:
+Policies, Verfahren und Richtlinien einer Organisation, die den Zugriff auf Systeme und Daten kontrollieren:
 - Security Awareness Training, Security Policies, Security Procedures, Security Guidelines, Personalkontrollen, ...
 
 = Schritte der Zugriffskontrolle
@@ -68,7 +68,7 @@ Policiesm, Verfahren und Richtlinien einer Organisation, die den Zugriff auf Sys
 
 
 == Identifikation
-Unter Identifikaton versteht man den Prozess, bei dem das Subjekt seine Identität "behauptet" (claimt). Dabei müssen alle Subkekte eindeutige Identitäten haben. Die Identiät eines Subjekts ist normalerweise Public Information.
+Unter Identifikaton versteht man den Prozess, bei dem das Subjekt seine Identität "behauptet" (claimt). Dabei müssen alle Subjekte eindeutige Identitäten haben. Die Identiät eines Subjekts ist normalerweise Public Information.
 
 - Username, Smart Card, Token Device, Phrase, Gesichtserkennung, Fingerabdruck, ...
 
@@ -84,7 +84,7 @@ Authentisierungsinformationen sind privat.
 )
 
 === Passwort
-Passwörter sind normalerweise statisch und die schwächste form der Authentisierung. Einfache Passwörter sind leicht zu erraten, komplexere Passwörter sind schwer zu merken und werden aufgeschrieben. Passwörter werden normalerweise hashed gespeichert.
+Passwörter sind normalerweise statisch und die schwächste Form der Authentisierung. Einfache Passwörter sind leicht zu erraten, komplexere Passwörter sind schwer zu merken und werden aufgeschrieben. Passwörter werden normalerweise gehashed gespeichert.
 
 Starke Passwörer:
 - Keine Identifikationsinformationen (Name, Geburtsdatum, ...)
@@ -113,7 +113,7 @@ Am besten erlauben Cognitive Passwords dem User selbst eine Frage zu stellen, di
 Ein Token Device/Hardware Token ist ein kleines Gerät, das Passwörter generiert. Ein Authentication Server speichert die Details des Tokens, somit weiss der Server immer, welche Zahl gerade auf dem Token angezeigt wird.
 
 - Synchronous Dynamic Password Tokens:
-  - Hardware Tokens, die asynchrone dynamische Passwords generieren. Sie sind Time-based und synchronisiert mit einem Authentication Server.
+  - Hardware Tokens, die synchrone dynamische Passwords generieren. Sie sind Time-based und synchronisiert mit einem Authentication Server.
 - Asynchronous Dynamic Password Tokens:
   - Ohne Zeit-Synchronisation. Das Hardware Token generiert Passwörter, die auf einem Algorithmus und einem aufzählendem Counter (Incrementing Counter) basieren.
   - Wenn ein Incrementing Counter verwendet wird, wird ein dynamisches Onetime Password generiert, welches dasselbe bleibt bis zur Authentisierung.
@@ -171,8 +171,11 @@ Ein Token Device/Hardware Token ist ein kleines Gerät, das Passwörter generier
   - User Accounts sind in Rollen plaziert und Administratoren weisen Rollen Zugriffsrechte zu.
   - Rollen sind normalerweise nach Job-Funktionen definiert.
   - Beispiel: Active Directory
-- Rule Based Access Control (RuBAC)stylebeinhalten können
-  - Flexibler als RuBAC, da verschiedenen Subjekten unterschiedliche Rechte zugewiesen werden können.
+- Rule Based Access Control (RuBAC)
+  - Globale Regeln, die für alle Subjekte gelten
+  - Bsp: Eine Firewall erlaubt/blockiert Traffic von allen Benutzern gleich
+- Attribute Based Access Control
+  - Flexibler als RuBAC, da verschiedenen Subjekten unterschiedliche Rechte zugewiesen werden können
   - Beispiel: XACML (eXtensible Access Control Markup Language)
 - Mandatory Access Control (MAC)
   - Zugriff wird durch die Sicherheitsrichtlinien des Systems bestimmt.
@@ -195,11 +198,11 @@ Ein Token Device/Hardware Token ist ein kleines Gerät, das Passwörter generier
   - Subjekt-Focused, sie identifizieren Objekte, auf welche die Subjekte zugreifen können.
 - Content-Dependent Access Control
   - Zugriff wird basierend auf dem Inhalt des Objekts verweigert.
-  - Beispiel: Database-View. Eine View ruft spezifische Columns fvon einer oder mehreren Tabellen (Virtual Table) ab.
+  - Beispiel: Database-View. Eine View ruft spezifische Columns von einer oder mehreren Tabellen (Virtual Table) ab.
   - Beispiel: Eine Benutzertabelle enthält Name, E-Mail, Kreditkartennummer. Ein Benutzer hat nur Zugriff auf Name und E-Mail.
 - Need to know
   - Zugriff wird nur gewährt, wenn der Benutzer für seine Work-Tasks und Job-Functions das Wissen benötigt.
-  - Beispiel: Ein Benutzer in der Buchhaltung benötigt keine Zugriff auf die Kundendatenbank
+  - Beispiel: Ein Benutzer in der Buchhaltung benötigt keinen Zugriff auf die Kundendatenbank
 - Least Privilege
   - Benutzer erhalten nur die Rechte, die sie für ihre Arbeit benötigen.
   - Wichtig, dass alle Benutzer Well-Defined Job-Beschreibungen haben, welche das Personal versteht.
