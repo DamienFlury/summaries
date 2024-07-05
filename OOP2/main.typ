@@ -580,3 +580,19 @@ public static long fibonacci(int n) {
   return f[n];
 }
 ```
+
+= Algorithmenanalyse
+== Theoretische Analyse
+- Atomare Operationen
+- In Pseudocode identifizierbar
+- Annahme:
+  - Benötigen konstante Zeit
+  - Summe der primitiven Operationen bestimmt die Laufzeit
+
+== Big-O Notation
+$f(n) "ist" O(g(n))$, falls reelle, positive Konstante $c > 0$, Ganzzahlkonstante $n_0 >= 1$, so dass
+$f(n) <= c dot g(n) "für" n >= n_0$
+
+#figure(image("images/count-operations.png"), caption: [Primitive Operationen zählen])
+
+
