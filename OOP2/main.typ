@@ -11,9 +11,6 @@
 
 #let definition(text) = box()[_Definition:_ #text]
 
-= Algorithmus
-#definition[*Endliches*, *deterministisches* und *allgemeines* Verfahren unter Verwendung *ausführbarer*, *elementarer* Schritte.]
-
 = Input und Output
 #figure(image("images/class-hierarchy-io.png"), caption: [Klassenhierarchie von Input und Output])
 
@@ -223,7 +220,8 @@ public static <T> Stack<T> multiPush(T value, int times) {
     result.push(value);
   }
   return result;
-}
+}ausführbarer
+ausführbarer
 ```
 Typ wird am Kontext erkannt:
 ```java
@@ -283,7 +281,11 @@ public static void main(String[] args) {
 ```
 
 == Variance
-#table(columns: 5, stroke: none, table.header([], [*Typ*], [*Kompatible Typ-Argumente*], [*Lesen*], [*Schreiben*]), [*Invarianz*], [`C<T>`], [T], [Ja], [Ja], [*Kovarianz*], [`C<? extends T>`], [T und Subtypen], [Ja], [Nein], [*Kontravarianz*], [`C<? super T>`], [T und Basistypen], [Nein], [Ja], [*Bivarianz*], [`C<?>`], [Alle], [Nein], [Nein])
+#[
+#let no = text(red, sym.times.big)
+#let yes = text(green, sym.checkmark)
+#table(columns: 5, stroke: none, table.header([], [*Typ*], [*Kompatible Typ-Argumente*], [*Lesen*], [*Schreiben*]), [*Invarianz*], [`C<T>`], [T], yes, yes, [*Kovarianz*], [`C<? extends T>`], [T und Subtypen], yes, no, [*Kontravarianz*], [`C<? super T>`], [T und Basistypen], no, yes, [*Bivarianz*], [`C<?>`], [Alle], no, no)
+]
 
 == Generics vs ArrayList
 ```java
@@ -308,7 +310,6 @@ stack.push(new Graphic()); // nicht erlaubt
 stack.push(new Rectangle()); // auch nicht erlaubt
 ```
 #sym.arrow Kovariante generische Typen sind *readonly*.
-
 === Kontravarianz
 ```java
 public static void addToCollection(List<? super Integer> list, Integer i) {
@@ -406,5 +407,176 @@ public class PerformanceAnalyzer {
     long elapsedTime = endTime - startTime;
     System.out.println(method.getName() + " took " + elapsedTime + " nanoseconds to execute.");
   }
+}
+```
+
+= Arrays und Listen
+== Sortieren
+=== Platz finden und Platz schaffen
+Beispiel (Highscore-Liste):
+- Iteration vom Ende zu Beginn
+- Neuer Score grösser als Score an `position - 1`?
+  - Ja: Kopiere `position - 1` an `position`
+  - Nein: Iteration abbrechen
+- Eintrag an `position` speichern
+
+#figure(image("images/leaderboard.png"), caption: [Leaderboard])
+
+```java
+public void add(GameEntry entry) {
+  int newScore = entry.getScore();
+  if(isHighscore(newScore)) {
+    if(numEntries < board.length) {
+      numEntries++;
+    }
+    int j = numEntries - 1;
+    for(; j > 0 && board[j - 1].getScore() < newScore; j--) {
+      board[j] = board[j - 1]
+      j--;
+    }
+    board[j] = entry;
+  }
+}
+```
+
+=== Insertion Sort
+#figure(image("images/insertion-sort.png"), caption: [Insertion Sort])
+```java
+public static <T extends Comparable<T>> void insertionSort(T[] data) {
+  for (int i = 1; i < data.length; i++) {
+    T currentItem = data[i];
+    int j = i;
+    for(; (j > 0) && (data[j - 1].compareTo(currentItem) > 0); j--) {
+      data[j] = data[j - 1];
+    }
+    data[j] = currentItem;
+  }
+}
+```
+
+== Linked List
+=== Einfügen am Anfang
++ Neuen Knoten mit altem Kopf verketten
++ `head` auf neuen Knoten setzen
+
+#figure(image("images/linked-list-prepend.png"), caption: [Einfügen am Anfang])
+
+=== Einfügen am Ende
++ Neuen Knoten auf `null` zeigen lassen
++ Früheren Endknoten mit neuem Knoten verketten
++ `tail` auf neuen Knoten setzen
+
+=== Laufzeit Einfügen/Lesen
+#table(columns: 3, [], [Lesen], [Einfügen], [Array], [O(1)], [O(n)],
+[Liste], [O(n)], [O(n)])
+
+== Doubly Linked List
+=== Einfügen eines Knotens am Anfang
+```java
+public void addFirst(T element) {
+  DoublyLinkedNode<T> newNode = new DoublyLinkedNode<>(element, null, null);
+  DoublyLinkedNode<T> f = header.getNext();
+  header.setNext(newNode);
+  newNode.setNext(f);
+  size++;
+}
+```
+
+=== Entfernen eines Knotens am Ende
+```java
+public T removeLast() {
+  DoublyLinkedNode<T> oldPrevNode
+  = trailer.getPrev();
+  DoublyLinkedNode<T> prevPrevNode
+  = oldPrevNode.getPrev();
+  trailer.setPrev(prevPrevNode);
+  prevPrevNode.setNext(trailer);
+  oldPrevNode.setPrev(null);
+  oldPrevNode.setNext(null);
+  size--;
+  return oldPrevNode.getElement();
+}
+```
+
+= Algorithmenparadigmen
+#definition[*Endliches*, *deterministisches* und *allgemeines* Verfahren unter Verwendung *ausführbarer*, *elementarer* Schritte.]
+
+== Set-Covering Problem
+_Beispiel:_ Alle Staaten mit möglichst wenigen Radiosendern abdecken.
+#figure(image("images/set-covering.png"), caption: [Set-Covering Problem])
+
+*Optimaler Algorithmus:*
+- Teilmengen der Stationen aufzählen
+- Minimale Anzahl Stationen wählen
+- Problem: $2^n$ mögliche Kombinationen
+
+*Greedy Algorithmus:*
+- Immer Sender wählen, der die meisten neuen Staaten hinzufügt
+
+```java
+public static void calculateSolution(HashSet<String> statesNeeded, HashMap<String, HashSet<String>> stations) {
+  var finalStations = new HashSet<String>();
+  while (!statesNeeded.isEmpty()) {
+    String bestStation = "";
+    var statesCovered = new HashSet<String>();
+    for (String station : stations.keySet()) {
+      var covered = new HashSet<String>(statesNeeded);
+      covered.retainAll(stations.get(station));
+      if (covered.size() > statesCovered.size()) {
+        bestStation = station;
+        statesCovered = covered;
+      }
+    }
+    statesNeeded.removeAll(statesCovered);
+    finalStations.add(bestStation);
+  }
+  System.out.println(finalStations);
+}
+```
+
+== Binary Search
+```java
+public static <T extends Comparable<T>> boolean searchBinary(List<T> data, T target, int low, int high) {
+  if (low > high) {
+    return false;
+  } else {
+    int pivot = low + ((high - low) / 2);
+    if (target.equals(data.get(pivot))) {
+      return true;
+    } else if (target.compareTo(data.get(pivot)) < 0) {
+      return searchBinary(data, target, low, pivot - 1);
+    } else {
+      return searchBinary(data, target, pivot + 1, high);
+    }
+  }
+}
+```
+
+== Backtracking
+- Ziel erreicht:
+  - Lösungspfad aktualisieren
+  - *True* zurückgeben
+- Wenn (x, y) bereits Teil des Lösungspfades:
+  - *False* zurückgeben
+- (x, y) als Teil des Lösungspfades markieren
+- Vorwärts in X-Richtung suchen: #sym.arrow
+- Keine Lösung: In Y-Richtung abwärts suchen: #sym.arrow.b
+- Keine Lösung: Zurück in X-Richtung suchen: #sym.arrow.l
+- Keine Lösung: Aufwärts in Y-Richtung suchen: #sym.arrow.t
+- Immer noch keine Lösung: (x, y) aus Lösungspfad entfernen und *Backtracking*
+- *False* zurückgeben
+
+== Dynamische Programmierung
+```java
+public static long fibonacci(int n) {
+  long[] f = new long[n + 2];
+  f[0] = 0;
+  f[1] = 1;
+
+  for(int i = 2; i <= n; i++) {
+    f[i] = f[i - 1] + f[i -2];
+  }
+
+  return f[n];
 }
 ```
