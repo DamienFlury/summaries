@@ -6,7 +6,7 @@
 #set page(flipped: true, columns: 3, margin: 20pt)
 #set text(lang: "de", size: 7pt)
 #set par(justify: true)
-#show raw: set text(font: "Fira Code")
+#show raw: set text(font: "Monaspace Neon")
 #set heading(numbering: "1.1")
 
 #let definition(text) = box()[_Definition:_ #text]
@@ -220,8 +220,7 @@ public static <T> Stack<T> multiPush(T value, int times) {
     result.push(value);
   }
   return result;
-}ausführbarer
-ausführbarer
+}
 ```
 Typ wird am Kontext erkannt:
 ```java
@@ -595,4 +594,144 @@ $f(n) <= c dot g(n) "für" n >= n_0$
 
 #figure(image("images/count-operations.png"), caption: [Primitive Operationen zählen])
 
+= Sortieralgorithmen
+== Selectionsort
+Beim Selectionsort wird immer das grösste/kleinste Element gesucht und an der nächsten Stelle in einer zweiten Liste eingefügt. Alternativ kann auch geswappt werden.
 
+#figure(image("images/selectionsort.png"), caption: [Selectionsort])
+
+```java
+public static void selectionsort(int[] array) {
+  int n = array.length;
+  for (int i = 0; i < n; i++) {
+    int minimum = i;
+    for (int j = i + 1; j < n; j++) {
+      if (arr[j] < arr[minimum]) {
+        minimum = j;
+      }
+    }
+    swap(arr, i, minimum);
+  }
+}
+```
+Laufzeit: $O(n^2)$
+
+== Insertionsort
+```java
+public static void insertionsort(Comparable[] a) {
+  int n = a.length;
+  for (int i = 1; i < n; i++) {
+    for (int j = i; j > 0 && a[j] < a[j - 1]; j--) {
+      swap(a, j, j - 1);
+    }
+  }
+}
+```
+
+Laufzeit: $O(n^2)$
+
+- Element entnehmen und an der richtigen Stelle in sortierter Liste einfügen
+- Gut bei teilweise sortierten Arrays
+
+== Bubblesort
+Array von links nach rechts durchgehen
+- Wenn Element grösser als rechter Nachbar: tauschen
+
+#figure(image("images/bubblesort.png"), caption: [Bubblesort])
+
+```java
+void bubblesort(int[] a) {
+  for (int n = array.length; n > 1; n --) {
+    for (int i = 0; i < n - 1; i++) {
+      if (a[i] > a[i + 1]) {
+        swap(a, i, i + 1);
+      }
+    }
+  }
+}
+```
+
+Laufzeit: $O(n^2)$
+
+= Recursion
+== Schlüssel suchen (iterativ)
++ Lege einen Haufen Schachteln zum Durchsehen an
++ Nimm eine Schachtel vom Haufen und sieh sie durch
++ Wenn du eine Schachtel findest, lege sie auf den Haufen, um sie später zu durchsuchen
++ Wenn du einen Schlüssel findest, bist du fertig
++ Gehe zu Schritt 2
+
+```python
+def look_for_key(main_box):
+  pile = main_box.make_a_pile_to_look_through()
+  while pile is not empty:
+    box = pile.grab_a_box()
+    for item in box:
+      if item.is_a_box():
+        pile.append(item)
+      elif item.is_a_key():
+        print("Found the key")
+```
+
+== Schlüssel suchen (rekursiv)
++ Sieh die Schachtel durch
++ Wenn Schachtel gefunden: Gehe zu Schritt 1
++ Wenn Schlüssel gefunden: Fertig
+
+```python
+def look_for_key(box):
+  for item in box:
+    if item.is_a_box():
+      look_for_key(box)
+    elif item.is_a_key():
+      print("Found the key")
+```
+
+== Array umkehren
+```java
+int[] reverseArray(int[] a, int i, int j) {
+  if (i < j) {
+    int temp = a[j];
+    a[j] = a[i];
+    a[i] = temp;
+    reverseArray(a, i + 1, j - 1);
+  }
+  return a;
+}
+```
+Umwandlung in einen iterativen Algorithmus:
+```java
+int[] reverseArrayIteratively(int[] a, int i, int j) {
+  while (i < j) {
+    int temp = a[j];
+    a[j] = a[i];
+    a[i] = temp;
+    i += 1;
+    j += 1;
+  }
+  return a;
+}
+```
+
+== Endrekursion
+Summe (nicht end-rekursiv):
+```java
+int recsum(int x) {
+  if (x == 0) {
+    return 0;
+  } else {
+    return x + recsum(x - 1);
+  }
+}
+```
+
+Summe (end-rekursiv):
+```java
+int tailrecsum(int x, int total) {
+  if (x == 0) {
+    return total;
+  } else {
+    return tailrecsum(x - 1, total + 1);
+  }
+}
+```
