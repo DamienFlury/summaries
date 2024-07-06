@@ -735,3 +735,55 @@ int tailrecsum(int x, int total) {
   }
 }
 ```
+= Stack & Queue
+== Array-basierter Stack
+Push:
+```java
+void push(E element) {
+  if (size() == data.length) {
+    resize();
+  }
+  data[t++] = element;
+}
+
+void resize() {
+  int oldSize = data.length;
+  int newSize = oldSize * 2;
+  E[] temp = (E[]) new Object[newSize];
+  for (int i = 0; i < oldSize; i++) {
+    temp[i] = data[i];
+  }
+  data = temp;
+}
+```
+
+Pop:
+```java
+public E pop() {
+  if (isEmpty()) {
+    throw new IllegalStateException ("Stack is empty!");
+  }
+  E element = data[t];
+  data[t--] = null;
+  return element;
+}
+```
+
+== Queue
+- `enqueue(E)`: Element am Ende der Queue einfügen
+- `E dequeue()`: Element vom Anfang der Queue entfernen und zurückgeben
+- `E first()`: Liefert erstes Element, ohne es zu entfernen
+- `int size()`: Anzahl gespeicherter Elemente
+- `boolean isEmpty()`
+
+=== Enqueue
+- `storedElements = 0`
+- `front = 0`
+
+#figure(image("images/enqueue.png"), caption: [Enqueue])
+
+$->$ `storedElements = 1` (`front` bleibt 0)
+
+=== Dequeue
+- `storedElements -= 1`
+- `front = (front + 1) % capacity`
