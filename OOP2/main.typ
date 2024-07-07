@@ -784,6 +784,315 @@ public E pop() {
 
 $->$ `storedElements = 1` (`front` bleibt 0)
 
+```java
+void enqueue(E element) {
+  if (storedElements == capacity) {
+    throw new IllegalStateException();
+  } else {
+    int r = (front + storedElements) % capacity;
+    data[r] = element;
+    storedElements++;
+  }
+}
+```
+
 === Dequeue
 - `storedElements -= 1`
 - `front = (front + 1) % capacity`
+
+```java
+E dequeue() {
+  if (isEmpty()) {
+    return null;
+  } else {
+    E elem = data[front];
+    front = (front + 1) % capacity;
+    storedElements--;
+    return elem;
+  }
+}
+```
+
+== Ringbuffer
+```java
+synchronized void add(E element) throws Exception {
+  int index = (tail + 1) % capacity;
+  size++;
+  
+  if(size == capacity) {
+    throw new Exception("Buffer Overflow");
+  }
+
+  data[index] = element;
+  tail++;
+}
+```
+
+```java
+synchronized E get() throws Exception {
+  if (size == 0) {
+    throw new Exception("Empty Buffer");
+  }
+
+  int index = head % capacity;
+  E element = data[index];
+
+  head++;
+  size--;
+  return element;
+}
+```
+
+= Trees
+#figure(image("images/tree-overview.png"), caption: [Tree])
+- Tiefe eines Knotens: Anzahl Vorgänger
+- Höhe eines Baums: Maximale Tiefe der Knoten eines Subtree
+- Subtree (Unterbaum): Baum aus einem Knoten und seinen Nachfolgern
+
+Java Tree Interface:
+```java
+interface Tree<E> extends Iterable<E> {
+  Node<E> root();
+  Node<E> parent(Node<E> p);
+  Iterable<Node<E>> children(Node<E> p);
+  int numChildren(Node<E> p);
+  boolean isInternal(Node<E> p); // Node
+  boolean isExternal(Node<E> p); // Leaf
+  boolean isRoot(Node<E> p);
+}
+```
+
+Binary Tree in Java:
+```java
+interface BinaryTree<E> extends Tree<E> {
+  Node<E> left(Node<E> p);
+  Node<E> right(Node<E> p);
+  Node<E> sibling(Node<E> p);
+  Node<E> addRoot(E e);
+  Node<E> addLeft(Node<E> p, E e);
+  Node<E> addRight(Node<E> p, E e);
+}
+```
+
+== Arten von Bäumen
+=== Binärer Suchbaum
+#figure(image("images/bst.png", width: 4cm), caption: [Binary Search Tree])
+- Jeder Knoten trägt einen Schlüssel
+- Alle Schlüssel im linken Teilbaum sind kleiner als die Wurzel des Teilbaums
+- Alle Schlüssel im rechten Teilbaum sind grösser als die Wurzel des Teilbaums
+- Die Unterbäume sind auch binäre Suchbäume
+
+
+
+== Algorithmen
+=== Tiefe
+```java
+int depth(Node<E> p) {
+  if (isRoot(p)) {
+    return 0;
+  } else {
+    return 1 + depth(parent(p));
+  }
+}
+```
+=== Höhe des Trees
+```java
+int height(Node<E> p) {
+  int h = 0;
+  for (Node<E> c : children(p)) {
+    h = Math.max(h, 1 + height(c));
+  }
+  return h;
+}
+```
+
+=== Sibling
+
+== Traversierungen
+=== Preorder (W - L - R)
+#figure(image("images/preorder.png"), caption: [Preorder])
+```java
+algorithm preOrder(v) 
+  visit(v)
+  for each child w of v 
+    preOrder(w)
+```
+
+=== Postorder (L - R - W)
+#figure(image("images/postorder.png"), caption: [Postorder])
+```java
+algorithm postOrder(v)
+  for each child w of v
+    postOrder(w)
+  visit(v)
+```
+
+=== Breadth-First / Level-Order
+Beispiel: Sudoku (Welcher Zug soll als nächstes gewählt werden).
+#figure(image("images/breadth-first.png"))
+
+```java
+algorithm breadthFirst()
+  // Q enthält ROot
+  while Q not empty
+    v = Q.dequeue()
+    visit(v)
+    for each child w in children(v)
+      Q.enqueue(w)
+```
+
+=== Inorder (L - W - R)
+Beispiel: Arithmetische Ausdrücke
+#figure(image("./images/inorder.png"), caption: [Inorder])
+
+```java
+algorithm inOrder(v)
+  if hasLeft(v)
+    inOrder(left(v))
+  visit(v)
+  if hasRight(v)
+    inOrder(right(v))
+```
+
+=== Übsersicht
+#figure(image("./images/traversierung-overview.png"), caption: [Traversierungen (Übersicht)])
+
+== Heapsort
+Binärer Baum mit folgenden Eigenschaften:
+- Baum ist vollständig (alle Blätter haben dieselbe Tiefe)
+- Schlüssel jedes Knotens kleiner als oder gleich wie der Schlüssel seiner Kinder
+
+#figure(image("./images/heap.png"), caption: [Heap])
+
+=== Als Array
+#figure(image("./images/heap-as-array.png"), caption: [Heap als Array])
+
+=== Ablauf
++ Nehme Root-Element aus dem Heap heraus und lege es in Array (Root ist immer das kleinste Element)
++ Letztes Element im Heap in Root ($->$ Heap-Eigenschaft wird verletzt)
++ Root-Element im Tree versenken (percolate)
++ Zurück zu Schritt 1.
+
+Percolate-Algorithmus:
+```java
+void percolate(Comparable[] array, int startIndex, int last) {
+  int i = startIndex;
+  while (hasLeftChild(i, last)) {
+    int left = getLeftChild(i);
+    int right = getRightChild(i);
+    int exchangeWith = 0;
+
+    if (array[i].compareTo(array[left]) > 0) {
+      exchangeWith = left;
+    }
+    if (right <= last && array[left].compareTo(array[right]) > 0) {
+      exchangeWith = right;
+    }
+    if (exchangeWith == 0 || array[i].compareTo(array[exchangeWith]) <= 0) {
+      break;
+    }
+    swap(array, i, exchangeWith);
+    i = exchangeWith;
+  }
+}
+```
+
+Heap-Sort-Funktion:
+```java
+void heapSort(Comparable[] array) {
+  int i;
+  heapifyMe(array);
+  for (i = array.length - 1; i > 0; i--) {
+    swap(array, 0, i); // Erstes Element mit letztem tauschen
+    percolate(array, 0, i - 1); // Heap wiederherstellen
+  }
+}
+```
+
+= Design Patterns
+== Arten
+- Erzeugungsmuster: Abstrahieren Instanziierung (Factory, Singleton)
+- Strukturmuster: Zusammensetzung von Klassen & Objekten zu grösseren Strukturen (Adapter, Fassade)
+- Verhaltensmuster: Algorithmen und Verteilung von Verantwortung zwischen Objekten (Iterator, Visitor)
+
+=== Template-Method
+- Rumpf (Skelett) eines Algorithmus definieren, Teilschritte in Subklasse spezifizieren
+- Subklasse definiert nur Teilschritte, die Struktur des Algorithmus bleibt bestehen
+- Entscheidung: Welche Teile sind unveränderlich, welche können angepasst werden?
+
+#figure(image("./images/template-method.png"), caption: [Template-Method])
+
+Das Template-Method-Pattern wird oft in Frameworks benutzt, im Sinne des Holywood-Prinzips: _Don't call us, we call you._
+
+Euler-Tour:
+- Generische Traversierung binärer Bäume
+- Jeder Knoten wird drei mal besucht:
+  - Von links (preorder)
+  - Von unten (inorder)
+  - Von rechts (postorder)
+
+```java
+public abstract class EulerTour<E> {
+    protected abstract void visitLeaf(Node<E> node);
+
+    protected abstract void visitLeft(Node<E> node);
+
+    protected abstract void visitBelow(Node<E> node);
+
+    protected abstract void visitRight(Node<E> node);
+
+    public void eulerPath(Node<E> node, Node<E> parent) {
+        if (node == null) {
+            return;
+        }
+        if (node.isLeaf()) {
+            visitLeaf(node);
+        } else {
+            visitLeft(node);
+            eulerPath(node.getLeft(), node);
+            visitBelow(node);
+            eulerPath(node.getRight(), node);
+            visitRight(node);
+        }
+    }
+}
+```
+
+=== Visitor-Pattern
+#figure(image("./images/visitor-pattern.png"), caption: [Visitor-Pattern])
+
+= Sets, Maps, Hashing
+== Multiset
+- Set mit erlaubten _Duplikaten_
+- Was ist ein Duplikat?
+  - `equals()` (Standard) vs `==`
+
+Add:
+```java
+public int add(E element, int occurrences) {
+  if (occurrences < 0) {
+    throw new IllegalArgumentException("Occurrences cannot be negative.");
+  }
+  int currentCount = elements.getOrDefault(element, 0);
+  int newCount = currentCount + occurrences;
+  elements.put(element, newCount);
+  return newCount;
+}
+```
+
+=== Divisionsrestverfahren
+- $h(x) = x mod 10$: Nach Kriterien gute Hashfunktion, jedoch ist bei jeder Zahl nur die letzte Ziffer relevant
+- $h(x) = x mod 2^2$: Die letzten beiden Ziffern in der Binärrepräsentation mappen immer auf dieselben Hashwerte
+- $->$ Ungerade Zahlen (oder besser Primzahlen) verteilen sich besser
+
+=== Komponentensumme
++ Schlüssel in Komponenten unterteilen
++ Komponenten summieren
++ Overflow ignorieren
+$->$ Problematisch, da z.B. bei Strings die Reihenfolge der Chars keine Rolle spielt
+
+=== Polynom-Akkumulation
+- Komponentensumme, mit gewichteten Komponenten:
+  - $p(z) = a_0 + a_1 z + a_2 z^2 + dots.c + a_(n - 1) z^(n - 1)$
+- Gut für Strings
+  - Mit $z = 33$ maximal 6 Kollisionen bei 50'000 englischen Wörtern
