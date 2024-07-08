@@ -3,13 +3,17 @@
 
 #let info = thmbox("info", "Info", fill: rgb("#eeeeff")).with(numbering: none)
 
-#set page(flipped: true, columns: 3, margin: 20pt)
+#set page(flipped: true, margin: 10pt, columns: 3)
+
 #set text(lang: "de", size: 7pt)
 #set par(justify: true)
 #show raw: set text(font: "Monaspace Neon")
 #set heading(numbering: "1.1")
 
 #let definition(text) = box()[_Definition:_ #text]
+
+#set image(width: 60%)
+
 
 = Input und Output
 #figure(image("images/class-hierarchy-io.png"), caption: [Klassenhierarchie von Input und Output])
@@ -42,7 +46,7 @@ try (var reader = new BufferedReader(new FileReader("quotes.txt")) {
     line = reader.readLine();
   }
 }
-```
+  ```
 
 #info[`FileReader` liest einzelne Zeichen, `BufferedReader` liest ganze Zeilen.]
 
@@ -57,9 +61,9 @@ try (var writer = new FileWriter("test.txt", true)) {
 
 == Zusammenfassung
 - Byte-Stream: Byteweises Lesen von Dateien
-  - FileInputStream, FileOutputStream
+- FileInputStream, FileOutputStream
 - Character-Stream: Zeichenweises Lesen von Dateien (UTF-8)
-  - FileReader, FileWriter
+- FileReader, FileWriter
 
 = Serialisierung
 Das `Serializable`-Interface implementieren (Marker-Interface). Ohne Marker-Interface wird eine `NotSerializableException` geworfen.
@@ -133,10 +137,10 @@ var mapper = new ObjectMapper().enable(
 Output:
 ```json
 {
-  "user": {
-    "id": 1,
-    "name": "Frieder Loch"
-  }
+"user": {
+"id": 1,
+"name": "Frieder Loch"
+}
 }
 ```
 
@@ -144,11 +148,11 @@ Output:
 ```java
 var generator = new JsonFactory().createGenerator(
   new FileOutputStream("employee.json"), JsonEncoding.UTF8);
-  jsonGenerator.writeStartObject();
-  jsonGenerator.writeFieldName("identity");
-  jsonGenerator.writeStartObject();
-  jsonGenerator.writeStringField("name", company.name);
-  jsonGenerator.writeEndObject();
+jsonGenerator.writeStartObject();
+jsonGenerator.writeFieldName("identity");
+jsonGenerator.writeStartObject();
+jsonGenerator.writeStringField("name", company.name);
+jsonGenerator.writeEndObject();
 ```
 
 === Deserialisierung
@@ -181,9 +185,9 @@ public class Book {
   public LocalDateTime lastUpdate;
 }
 InjectableValues inject = new InjectableValues.Std()
-  .addValue(LocalDateTime.class, LocalDateTime.now());
+.addValue(LocalDateTime.class, LocalDateTime.now());
 Book[] books = new ObjectMapper().reader(inject)
-  .forType(new TypeReference<Book[]>(){}).readValue(jsonString);
+.forType(new TypeReference<Book[]>(){}).readValue(jsonString);
 ```
 
 = Generics
@@ -197,12 +201,12 @@ for (Iterator<String> it = list.iterator(); it.hasNext(); ) {
 
 === Iterable und Iterator
 #grid(columns: 2, gutter: 2em, 
-```java
+  ```java
 interface Iterable<T> {
   Iterator<T> iterator();
 }
 ```,
-```java
+  ```java
 interface Iterator<T> {
   boolean hasNext();
   T next();
@@ -239,30 +243,7 @@ Number n = majority(1, 2.4232, 3); // Compilerfehler
 Main.<Number>majority(1, 2.4232, 3); // Eigentlich OK, aber Number hat keine Comparable-Implementierung
 ```
 
-Erstellung eines Type T geht nicht:
-```java
-T t = new T(); // Compilerfehler
-T[] array = (T[]) new Object[10]; // Funktioniert
-```
-
 Die JVM hat keine Typinformationen zur Laufzeit #sym.arrow Non-Reifiable Types, Type-Erasure.
-
-So laufen:
-- Alte, nicht generische Programme auf neuen JVMs
-- Neue, generische Programme auf alten JVMs
-- Alter, nicht generischer Code kompiliert mit neuen Compilern
-
-== Unterschied Comparable
-```java
-<T extends Comparable<T>> T max(T x, T y) {
-  return x.compareTo("lmaooo") > 0 ? x : y; // Compilerfehler
-}
-```
-```java
-<T extends Comparable> T max(T x, T y) {
-  return x.compareTo("lmaooo") > 0 ? x : y; // OK
-}
-```
 
 == Wildcards
 ```java
@@ -415,8 +396,8 @@ public class PerformanceAnalyzer {
 Beispiel (Highscore-Liste):
 - Iteration vom Ende zu Beginn
 - Neuer Score grösser als Score an `position - 1`?
-  - Ja: Kopiere `position - 1` an `position`
-  - Nein: Iteration abbrechen
+- Ja: Kopiere `position - 1` an `position`
+- Nein: Iteration abbrechen
 - Eintrag an `position` speichern
 
 #figure(image("images/leaderboard.png"), caption: [Leaderboard])
@@ -439,7 +420,6 @@ public void add(GameEntry entry) {
 ```
 
 === Insertion Sort
-#figure(image("images/insertion-sort.png"), caption: [Insertion Sort])
 ```java
 public static <T extends Comparable<T>> void insertionSort(T[] data) {
   for (int i = 1; i < data.length; i++) {
@@ -458,16 +438,10 @@ public static <T extends Comparable<T>> void insertionSort(T[] data) {
 + Neuen Knoten mit altem Kopf verketten
 + `head` auf neuen Knoten setzen
 
-#figure(image("images/linked-list-prepend.png"), caption: [Einfügen am Anfang])
-
 === Einfügen am Ende
 + Neuen Knoten auf `null` zeigen lassen
 + Früheren Endknoten mit neuem Knoten verketten
 + `tail` auf neuen Knoten setzen
-
-=== Laufzeit Einfügen/Lesen
-#table(columns: 3, [], [Lesen], [Einfügen], [Array], [O(1)], [O(n)],
-[Liste], [O(n)], [O(n)])
 
 == Doubly Linked List
 === Einfügen eines Knotens am Anfang
@@ -553,10 +527,10 @@ public static <T extends Comparable<T>> boolean searchBinary(List<T> data, T tar
 
 == Backtracking
 - Ziel erreicht:
-  - Lösungspfad aktualisieren
-  - *True* zurückgeben
+- Lösungspfad aktualisieren
+- *True* zurückgeben
 - Wenn (x, y) bereits Teil des Lösungspfades:
-  - *False* zurückgeben
+- *False* zurückgeben
 - (x, y) als Teil des Lösungspfades markieren
 - Vorwärts in X-Richtung suchen: #sym.arrow
 - Keine Lösung: In Y-Richtung abwärts suchen: #sym.arrow.b
@@ -564,6 +538,70 @@ public static <T extends Comparable<T>> boolean searchBinary(List<T> data, T tar
 - Keine Lösung: Aufwärts in Y-Richtung suchen: #sym.arrow.t
 - Immer noch keine Lösung: (x, y) aus Lösungspfad entfernen und *Backtracking*
 - *False* zurückgeben
+
+Vorgehensmodell:
+```
+fn backtrack(k: Konfiguration)
+if [k ist Lösung] then
+[gib k aus]
+else
+for each [direkte Erweiterung k' von k]
+backtrack(k')
+```
+
+=== Sudoku
+```java
+public boolean solve(int row, int col) {
+  // Lösung gefunden?
+  if (row == 8 && col == 9) return true;
+  if (col == 9) {
+    row++;
+    col = 0;
+  }
+  // Feld schon befüllt?
+  if (sudokuArray[row][col] != 0) {
+    // Wenn ja: Nächstes Feld
+    return solve(row, col + 1);
+  } else {
+    for (int num = 1; num <= 9; num++) {
+      // Ergänzung regelgerecht?
+      if (checkRow(row, num) && checkCol(col, num) && checkBox(row, col, num)) {
+        // Neue Teillösung erstellen und ergänzen
+        sudokuArray[row][col] = num;
+        if (solve(row, col + 1)) return true;
+      }
+    }
+    // Backtracking
+    sudokuArray[row][col] = 0;
+    return false;
+  }
+}
+```
+
+=== Knight-Tour
+```java
+boolean knightTour(int[][] visited, int x, int y, int pos) {
+  visited[x][y] = pos;
+
+  if (pos >= N * N) {
+    return true;
+  }
+
+  for (int k = 0; k < 8; k++) {
+    int newX = x + row[k];
+    int newY = y + col[k];
+
+    if (isValid(newX, newY) && visited[newX][newY] == 0) {
+      if (knightTour(visited, newX, newY, pos + 1)) {
+        return true;
+      }
+    }
+  }
+
+  visited[x][y] = 0;
+  return false;
+}
+```
 
 == Dynamische Programmierung
 ```java
@@ -585,8 +623,8 @@ public static long fibonacci(int n) {
 - Atomare Operationen
 - In Pseudocode identifizierbar
 - Annahme:
-  - Benötigen konstante Zeit
-  - Summe der primitiven Operationen bestimmt die Laufzeit
+- Benötigen konstante Zeit
+- Summe der primitiven Operationen bestimmt die Laufzeit
 
 == Big-O Notation
 $f(n) "ist" O(g(n))$, falls reelle, positive Konstante $c > 0$, Ganzzahlkonstante $n_0 >= 1$, so dass
@@ -637,7 +675,7 @@ Laufzeit: $O(n^2)$
 Array von links nach rechts durchgehen
 - Wenn Element grösser als rechter Nachbar: tauschen
 
-#figure(image("images/bubblesort.png"), caption: [Bubblesort])
+#figure(image("images/bubblesort.png", width: 40%), caption: [Bubblesort])
 
 ```java
 void bubblesort(int[] a) {
@@ -818,7 +856,7 @@ E dequeue() {
 synchronized void add(E element) throws Exception {
   int index = (tail + 1) % capacity;
   size++;
-  
+
   if(size == capacity) {
     throw new Exception("Buffer Overflow");
   }
@@ -924,7 +962,7 @@ algorithm preOrder(v)
 algorithm postOrder(v)
   for each child w of v
     postOrder(w)
-  visit(v)
+visit(v)
 ```
 
 === Breadth-First / Level-Order
@@ -935,10 +973,10 @@ Beispiel: Sudoku (Welcher Zug soll als nächstes gewählt werden).
 algorithm breadthFirst()
   // Q enthält ROot
   while Q not empty
-    v = Q.dequeue()
+v = Q.dequeue()
     visit(v)
-    for each child w in children(v)
-      Q.enqueue(w)
+for each child w in children(v)
+Q.enqueue(w)
 ```
 
 === Inorder (L - W - R)
@@ -948,10 +986,10 @@ Beispiel: Arithmetische Ausdrücke
 ```java
 algorithm inOrder(v)
   if hasLeft(v)
-    inOrder(left(v))
+inOrder(left(v))
   visit(v)
-  if hasRight(v)
-    inOrder(right(v))
+if hasRight(v)
+inOrder(right(v))
 ```
 
 === Übsersicht
@@ -962,9 +1000,6 @@ Binärer Baum mit folgenden Eigenschaften:
 - Baum ist vollständig (alle Blätter haben dieselbe Tiefe)
 - Schlüssel jedes Knotens kleiner als oder gleich wie der Schlüssel seiner Kinder
 
-#figure(image("./images/heap.png"), caption: [Heap])
-
-=== Als Array
 #figure(image("./images/heap-as-array.png"), caption: [Heap als Array])
 
 === Ablauf
@@ -1027,34 +1062,34 @@ Das Template-Method-Pattern wird oft in Frameworks benutzt, im Sinne des Holywoo
 Euler-Tour:
 - Generische Traversierung binärer Bäume
 - Jeder Knoten wird drei mal besucht:
-  - Von links (preorder)
-  - Von unten (inorder)
-  - Von rechts (postorder)
+- Von links (preorder)
+- Von unten (inorder)
+- Von rechts (postorder)
 
 ```java
 public abstract class EulerTour<E> {
-    protected abstract void visitLeaf(Node<E> node);
+  protected abstract void visitLeaf(Node<E> node);
 
-    protected abstract void visitLeft(Node<E> node);
+  protected abstract void visitLeft(Node<E> node);
 
-    protected abstract void visitBelow(Node<E> node);
+  protected abstract void visitBelow(Node<E> node);
 
-    protected abstract void visitRight(Node<E> node);
+  protected abstract void visitRight(Node<E> node);
 
-    public void eulerPath(Node<E> node, Node<E> parent) {
-        if (node == null) {
-            return;
-        }
-        if (node.isLeaf()) {
-            visitLeaf(node);
-        } else {
-            visitLeft(node);
-            eulerPath(node.getLeft(), node);
-            visitBelow(node);
-            eulerPath(node.getRight(), node);
-            visitRight(node);
-        }
+  public void eulerPath(Node<E> node, Node<E> parent) {
+    if (node == null) {
+      return;
     }
+    if (node.isLeaf()) {
+      visitLeaf(node);
+    } else {
+      visitLeft(node);
+      eulerPath(node.getLeft(), node);
+      visitBelow(node);
+      eulerPath(node.getRight(), node);
+      visitRight(node);
+    }
+  }
 }
 ```
 
@@ -1065,7 +1100,7 @@ public abstract class EulerTour<E> {
 == Multiset
 - Set mit erlaubten _Duplikaten_
 - Was ist ein Duplikat?
-  - `equals()` (Standard) vs `==`
+- `equals()` (Standard) vs `==`
 
 Add:
 ```java
@@ -1084,6 +1119,7 @@ public int add(E element, int occurrences) {
 - $h(x) = x mod 10$: Nach Kriterien gute Hashfunktion, jedoch ist bei jeder Zahl nur die letzte Ziffer relevant
 - $h(x) = x mod 2^2$: Die letzten beiden Ziffern in der Binärrepräsentation mappen immer auf dieselben Hashwerte
 - $->$ Ungerade Zahlen (oder besser Primzahlen) verteilen sich besser
+- Wird oft als Kompressionsfunktion nach dem Hash verwendet
 
 === Komponentensumme
 + Schlüssel in Komponenten unterteilen
@@ -1093,6 +1129,60 @@ $->$ Problematisch, da z.B. bei Strings die Reihenfolge der Chars keine Rolle sp
 
 === Polynom-Akkumulation
 - Komponentensumme, mit gewichteten Komponenten:
-  - $p(z) = a_0 + a_1 z + a_2 z^2 + dots.c + a_(n - 1) z^(n - 1)$
+- $p(z) = a_0 + a_1 z + a_2 z^2 + dots.c + a_(n - 1) z^(n - 1)$
 - Gut für Strings
-  - Mit $z = 33$ maximal 6 Kollisionen bei 50'000 englischen Wörtern
+- Mit $z = 33$ maximal 6 Kollisionen bei 50'000 englischen Wörtern
+
+=== Rezept für Benutzerdefinierte Typen
+```java
+@Override public int hashCode() {
+  int result = 17;
+  result =
+  31 * result + (name != null ? name.hashCode() : 0);
+  result = 31 * result + age;
+  return result;
+}
+```
+
+== Geschlossene Adressierung
+
+- Behälter sind verkettete Listen
+- Platz nicht begrenzt, keine Überläufer
+
+Falls es zu einer Kollision kommt, wird in demselben Bucket der neue Wert als verlinkte Liste angehängt. Die Komplexitat beträgt $O(n/N)$, wobei:
+- $n$: Einträge in der Tabelle
+- $N$: Buckets
+
+== Offene Adressierung
+- Für überläufer in anderen Behältern Platz suchen
+- Sondierungsfolge bestimmt Weg zum Speichern und Wiederauffinden der Überläufer
+
+=== Sondieren
+- Lineare Sondierung: Überläufer ins nächste freie Bucket schreiben
+- $s(k, 1) = h(k) + 1$
+- $s(k, 2) = h(k) + 2$
+- Quadratische Sondierung
+- $s(k, 1) = h(k) + 1^2$
+- $s(k, 2) = h(k) + 2^2$
+- $s(k, 3) = h(k) + 3^2$
+
+_Löschen von Werten:_ Datensätze nicht physisch löschen, nur als gelöscht markieren
+```java
+public V remove(K key) {
+  int hashIndex = Math.abs(key.hashCode() % capacity);
+  int indexInHashMap = probeForDeletion(hashIndex, key);
+  if (indexInHashMap == -1) {
+    return null;
+  }
+  V answer = table[indexInHashMap].getValue();
+  table[indexInHashMap] = DELETED;
+  return answer;
+}
+```
+
+=== Dynamisches Hashing
+- Hashtabelle kann nur mit Aufwand vergrössert werden, um Kollisionen zu verringern
+- Reorganisation bei vielen Kollisionen können nur durch Reservieren eines sehr grossen Speicherbereichs zu Beginn verhindert werden
+- Wie könnte ein flexibleres Hashverfahren aussehen?
+
+
