@@ -118,7 +118,17 @@ x y^k z in L, forall k >= 0 $
 ]
 Zum beweisen, dass eine Sprache nicht regulär ist, nimmt man an, dass sie regulär ist und führt das Pumping Lemma durch. Gibt es einen Widerspruch, ist die Sprache nicht regulär (Widerspruchsbeweis).
 
-#figure(image("./assets/pumping-lemma.png"), caption: [Pumping Lemma])
+#let colMath(x, color) = text(fill: color)[$#x$]
+
+#example[$L = {0^n 1^n | n >= 0}$][
+  + Annahme: $L$ ist regulär
+  + $exists N in NN$, Pumping Length
+  + w = $0^N 1^N$
+  + Unterteilung $w = colMath(x, #green) colMath(y, #red) colMath(z, #blue)$
+  #figure(image("./assets/pumping-lemma.png"), caption: [Pumping Lemma])
+  + Pumpen: nur die Anzahl der 0 wird erhöht, Anzahl 1 bleibt
+  + $colMath(x, #green) colMath(y, #red)^k colMath(z, #blue) in.not L "für" k != 1$, im Widerspruch zum Pumping-Lemma
+]
 
 == Nicht deterministische Automaten (NEA)
 Ein DEA sieht immer nur ein Zeichen weit, kann sich nicht an ältere Zeichen erinnnern und kann Entscheidungen später nicht mehr revidieren. Zum Beispiel ist unklar, wie eine Bedingung wie "wenn ein Wort mit einer 0 aufhört, muss es auch mit einer 0 beginnen" implementiert werden müsste.
