@@ -124,8 +124,7 @@ Zum beweisen, dass eine Sprache nicht regulär ist, nimmt man an, dass sie regul
   + Annahme: $L$ ist regulär
   + $exists N in NN$, Pumping Length
   + w = $0^N 1^N$
-  + Unterteilung $w = colMath(x, #green) colMath(y, #red) colMath(z, #blue)$
-  #figure(image("./assets/pumping-lemma.png"), caption: [Pumping Lemma])
+  + Unterteilung $w = colMath(x, #green) colMath(y, #red) colMath(z, #blue)$ #figure(image("./assets/pumping-lemma.png"), caption: [Pumping Lemma])
   + Pumpen: nur die Anzahl der 0 wird erhöht, Anzahl 1 bleibt
   + $colMath(x, #green) colMath(y, #red)^k colMath(z, #blue) in.not L "für" k != 1$, im Widerspruch zum Pumping-Lemma
 ]
