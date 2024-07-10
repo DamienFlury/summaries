@@ -373,7 +373,7 @@ Falls P #sym.eq.not NP, dann können NP-vollständige Probleme nicht in polynomi
 
 SAT eignet sich für Probleme, bei welchen Elemente (Variablen) nur zwei Zustände einnehmen können. Jedes Ausfüllrätsel ist mit SAT beschreibbar. Man kann Wahrheitstabellen bilden. Jedes Problem, das sich auf SAT reduzieren lässt, ist NP-vollständig.
 
-=== k-CLIQUE
+=== #smallcaps[k-Clique]
 #given_question[
   Graph $G$ (bestimmte Anzahl und Anordnung von Knoten), Zahl $k$
 ][
@@ -390,7 +390,7 @@ SAT eignet sich für Probleme, bei welchen Elemente (Variablen) nur zwei Zustän
 
 Eignet sich für Probleme, bei denen möglichst viele Elemente eine Bedingung erfüllen müssen.
 
-=== SET-PACKING
+=== #smallcaps[Set-Packing]
 #given_question[
   Eine Familie $(S_i), i in I$ und eine Zahl $k in NN$
 ][
@@ -572,6 +572,14 @@ Jedes Element in $U$ soll genau in einer der Teilmengen einer Familie $S$ vorkom
   - Unterfamilie $S_(j i)$ (so, dass die gleiche Vereinigung wie die Familie $S_j$ erzielt wird)
   - Bedingung $S_(j i) sect S_(j k) = 0$
   - Bedingung $union.big_(j=1)^n S_j = union.big_(i=1)^m S_(j i)$
+]
+
+#info[Unterschied Set-Covering, Exact-Cover, Set-Packing][
+  - In #smallcaps[Set-Covering] und #smallcaps[Set-Packing] kommt eine Zahl $k$ (z.B. maximale Anzahl Allergien) vor, 
+nicht aber in #smallcaps[Exact-Cover].
+  - In #smallcaps[Set-Covering] dürfen sich die Mengen schneiden, müssen aber auch alles abdecken. In #smallcaps[Set-Packing]
+dürfen sich die Mengen nicht schneiden, müssen aber auch nicht alles abdecken.
+  - In #smallcaps[Exact-Cover] dürfen sich die Mengen nicht schneiden, müssen alles abdecken, aber es kommt nicht auf ihre Anzahl an.
 ]
 
 === #smallcaps[3D-Matching]
