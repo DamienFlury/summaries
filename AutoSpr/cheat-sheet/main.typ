@@ -4,6 +4,7 @@
 #set text(lang: "DE", region: "CH", font: "EB Garamond", size: 9pt)
 #set par(justify: true)
 #set heading(numbering: "1.1")
+#set text(lang: "de")
 
 #let theorem = thmbox("theorem", "Satz", fill: rgb("#eeffee"))
 #let proof = thmproof("proof", "Beweis")
@@ -22,55 +23,15 @@
 #let given_question(given, question) = block(inset: (1em))[*Gegeben:* #given \ *Fragestellung:* #question]
 
 
-#set page("a4", numbering: "1", margin: 20pt, columns: 3, flipped: true)
+#set page("a4", numbering: "1", margin: 20pt)
 #counter(page).update(1)
 
 #text(size: 24pt, [Automaten und Sprachen])
 
 #outline(indent: auto)
 
-= Logik
-== Prädikate
-- Aussagen über mathematische Objekte, wahr oder falsch
-- Funktionen mit booleschen Rückgabewerten:
-$P$, $Q(n)$, $R(x, y, z)$
-
-
-== Verknüpfungen
-- und: $P and Q$
-- oder: $P or Q$
-- nicht: $not P$
-- Implikation $P => Q = not P or Q$
-
-== Distributivgesetze
-- $P and (Q or R) <=> (P and Q) or (P and R)$
-- $P or (Q and R) <=> (P or Q) and (P or R)$
-
-== De Morgan
-- $not (P and Q) <=> not P or not Q$
-- $P => Q <=> (not Q => not P)$
-
-== Quantoren
-- $forall i in {1, ..., n} (P_i)$ = (Für alle $i$ ist $P_i$ wahr)
-- $exists i in {1, ..., n} (P_i)$ = (Es gibt ein $i$ derart, dass $P_i$ wahr ist)
-
-=== Morgan 2.0
-"Nicht für alle" = "Es gibt einen Fall, für den nicht"
-$ not forall i in {1, ..., n}(P_i) \ <=> not (P_1 and dots.c and P_n) <=> not P_1 or dots.c or not P_n <=> exists i in {1, ..., n}(not P_i) $
-
-= Alphabet und Wort
-- Alphabet: $Sigma$
-- Wort: Ein $n$-Tuplel in $Sigma^n = Sigma times dots.c times Sigma$
-- Menge aller Wörter: $Sigma^* = {epsilon} union Sigma union Sigma^2 union dots.c = union.big_(k=0)^infinity Sigma^k$
-
-== Wortlänge
-- $|epsilon| = 0$
-- $|01010|_0 = 3$
-- $|(1201)^7| = 7 dot |1201| = 28, |w^n| = n dot |w|$
 
 = Reguläre Sprachen
-
-#set text(lang: "de")
 
 #let screenshot(text) = {
   box(fill: luma(220), width: 100%, inset: 2em)[#align(center)[*Screenshot* #if(text != none) {[\ #text]} else {}]]
@@ -88,11 +49,6 @@ Ein DEA ist ein Quintupel $(Q, Sigma, delta, q_0, F)$, wobei:
 
 #definition[Sei $a$ ein endlicher Automat, dann ist $L(A)$ die Sprache
 $ L(A) = {w in Sigma^* | "w überführt A in einen Akzeptierzustand"} $]
-
-=== Beispiele für DEAs:
-- Durch drei teilbare Zahlen
-- Wörter mit einer geraden Anzahl $a$
-- Bedingungen an einzelne Zeichen, wie: Wörter, die mit einem $a$ beginnen und genau ein $b$ enthalten.
 
 === Myhill-Nerode Automat
 Wir müssen für beliebige Wörter herausfinden, mit welchem weiteren Input der Automat in einen Akzeptierzustand übergeht. Das leere Wort $epsilon$ ist speziell, wir benötigen die Sprache $L$ selbst, um zum Akzeptierzustand zu kommen. Beispiel:
@@ -114,13 +70,13 @@ Wir füllen jeweils nur die untere Hälfte der Tabelle aus:
 
 #image("./assets/minimaler-automat.png")
 
-=== Pumping Lemma
+=== Pumping Lemma für reguläre Sprachen
 #theorem[Ist $L$ eine reguläre Sprache, dann gibt es eine Zahl $N$, die Pumping Length, so dass jedes Wort $w in L$ mit $|w| >= N$ in drei Teile $w=x y z$ zerlegt werden kann, so dass:
 $ |y|> 0 \
 |x y| <= N \
 x y^k z in L, forall k >= 0 $
 ]
-Zum beweisen, dass eine Sprache nicht regulär ist, nimmt man an, dass sie regulär ist und führt das Pumping Lemma durch. Gibt es einen Widerspruch, ist die Sprache nicht regulär (Widerspruchsbeweis).
+Um zu beweisen, dass eine Sprache nicht regulär ist, nimmt man an, dass sie regulär ist und führt das Pumping Lemma durch. Gibt es einen Widerspruch, ist die Sprache nicht regulär (Widerspruchsbeweis).
 
 #let colMath(x, color) = text(fill: color)[$#x$]
 
@@ -133,12 +89,6 @@ Zum beweisen, dass eine Sprache nicht regulär ist, nimmt man an, dass sie regul
   + $colMath(x, #green) colMath(y, #red)^k colMath(z, #blue) in.not L "für" k != 1$, im Widerspruch zum Pumping-Lemma
 ]
 
-== Nicht deterministische Automaten (NEA)
-Ein DEA sieht immer nur ein Zeichen weit, kann sich nicht an ältere Zeichen erinnnern und kann Entscheidungen später nicht mehr revidieren. Zum Beispiel ist unklar, wie eine Bedingung wie "wenn ein Wort mit einer 0 aufhört, muss es auch mit einer 0 beginnen" implementiert werden müsste.
-
-Jeder NEA lässt sich in einen DEA umwandeln, NEAs erkennen somit dieselbe Sprache wie DEAs.
-
-NEAs erlauben auch verschiedene Zustandsänderungen durch dieselben Symbole oder gar keine Zustandsänderungen ($|delta(q, a)| eq.not 1$) und Zustandsänderungen durch das leere Wort ($delta(q, epsilon) != emptyset$)). Wenn ein NEA $epsilon$-Änderungen erlaubt, nennt man ihn auch $"NEA"_epsilon$.
 
 == Mengenoperationen
 #image("./assets/mengenoperationen.png")
@@ -169,28 +119,6 @@ $ L^* &= {epsilon} union L union L^2 union dots.c\
 - `\d` Ziffern, `\s` whitespace, `\w` Wortzeichen (inkl. Ziffern), `[:space:], [:lower:], [:xdigit:]`
 
 = Kontextfreie Sprachen
-== Grammatik für Klammerausdrücke
-$ A &-> epsilon \ 
-&-> A A \
-&-> (A) $
-Oder (Kurzschreibweise):
-$ A -> epsilon | A A | (A) $
-
-=== Beispiel für Ableitung von Klammerausdruck
-Wort $(()())$ soll abgeleitet werden:
-$ A -> (A) -> (A A) -> ((A)A) -> ((A)(A)) -> ((epsilon)(A)) -> ((epsilon)(epsilon)) -> (()())  $
-
-== Parse Tree
-#definition[Zwei Ableitungen eines Wortes $w$ einer kontextfreien Sprache $L(G)$ heissen äquivalent, wenn sie den gleichen Ableitungsbaum haben. Hat eine Sprache Wörter mit verschiedenen Ableitungen, heisst sie mehrdeutig (engl. ambiguous)]
-
-Ein Beispiel einer Grammatik, die nicht eindeutige Ableitungen hat, ist:
-$ G = ({S}, {0, 1}, {S -> 0 S 1 | 1 S 0 | S S | epsilon}, S) $
-
-Ein Ausruck $001011$ produziert verschiedene Parsetrees (siehe @ambiguous-grammar).
-
-#figure(placement: auto, grid(columns: (1fr, 1fr), gutter: 1cm, image("./assets/derivation-1.png"), image("./assets/derivation-2.png")), caption: [Nicht eindeutig ableitbare Grammatik])<ambiguous-grammar>
-
-Von besonderer praktischer Bedeutung sind jedoch Grammatiken, die immer eindeutig ableitbar sind. Ein Beispiel solch einer Grammatik ist die `expression-term-factor`-Grammatik für einfache arithmetische Ausdrücke.
 
 == Reguläre Operationen
 $L_1, L_2$ kontextfreie Sprachen mit Grammatiken $G_i = (V_i, Sigma, R_i, S_i)$. Grammatik für reguläre Operationen:
@@ -230,26 +158,6 @@ Diese Regel besagt einfach, dass $S_1$ beliebig oft wiederholt werden kann.
 - Leeres Wort
   - empty $-> epsilon$
 
-=== regex $->$ CFG
-#example[Grammatik zum regulären Ausdruck `(ab)*|c`:
-
-$ "Alternative: " &S -> U | C \
-"*-Operation: " &U -> U P | epsilon \
-"Verkettung:" &P -> A B \
-"a: " &A -> a \
-"b: " &B -> b \
-"c: " &C -> c $]
-
-== Arithmetische Ausdrücke
-$ "expression" &-> "expression" + "term" \ 
-& -> "term" \
-"term" &-> "term" * "factor" \
-&-> "factor " \ 
-"factor" &-> ("expression") \
-&-> upright(N) \ 
-upright(N) &-> "NZ" \
-&-> upright(Z) \
-Z &-> 0|1|2|3|4|5|6|7|8|9 $
 
 == Chomsky Normalform
 === Anforderungen an eine Grammatik
@@ -316,204 +224,7 @@ $=>$ Rechte Seite enthält genau zwei Variablen oder genau ein Terminalsymbol
 
 #definition[Chomsky-Normalform][Eine CFG ist in Chomsky-Normalform (CNF), wenn $S$ auf der rechten Seite nicht vorkommt und jede Regel von der Form $A -> B C$ oder $A -> a$ ist, zusätzlich ist die Regel $S -> epsilon$ erlaubt.]
 
-=== Anwendungen der Chomsky-Normalform
-*Gegeben:* Grammatik $G$ in Chomsky-Normalform
-#theorem[Ableitung eines Wortes $w in L(G)$ ist immer in $2|w| - 1$ Regelanwendungen möglich.]
-#proof[
-  - $|w| - 1$ Regeln der Form $A -> B C$ um aus $S$ ein Wort aus $w$ Variablen zu erzeugen
-  - $|w|$ Regeln der Form $A -> a$, um das Wort $w$ zu erzeugen
-]
 
-=== Deterministisches Parsen
-*Aufgabe: $S =>^* w$* \
-Kann das Wort $w in Sigma^*$ von der Grammatik $G = (V, Sigma, R, S)$ erzeugt werden?
-
-*Verallgemeinerte Aufgabe: $A =>^* w$* \
-Kann das Wort $w in Sigma^*$ aus der Variablen $A$ in der Grammatik $G = (V, Sigma, R, s)$ abgeleitet werden?
-
-*Deterministische Antwort:* \
-Gesucht ist ein Programm mit der Signatur
-```java
-boolean ableitbar(Variable a, String w);
-```
-welches entscheiden kann, ob ein Wort $w$ aus der Variablen $V$ ableitbar ist.
-
-=== CYK-Ideen
-+ Grammatik $G = (V, Sigma, R, S)$
-+ Variable $A in V$
-+ Wort $w in Sigma^*$
-
-*Frage:* Ist $w$ aus $A$ ableitbar? In Zeichen $A =>^* w$
-
-- Spezialfall $w = epsilon$: $A =>^* epsilon <=> A -> epsilon in R$
-- Spezialfall $|w| = 1$: $A =>^* w <=> A -> w in R$
-- Fall $|w| > 1$:
-$ A =>^* w => exists cases(A -> B C in R, w = w_1 w_2\, w_i in Sigma^*) "mit" cases(B =>^* w_1, C =>^* w_2) $
-
-=== CYK-Algorithmus
-
-#[
-  #show raw.line: it => {
-  show regex("\\$.*\\$"): it => {
-    eval(it.text)
-  }
-  it.body.text
-} 
-```
-boolean ableitbar(Variable A, String w) {
-  if (w.length() == 0) {
-    return $A -> epsilon in R$;
-  }
-  if (w.length() == 1) {
-    return $A -> w in R$;
-  }
-  foreach Unterteilung $w = w_1 w_2$ {
-    foreach $A -> B C in R$ {
-      if (ableitbar(B, $w_1$) 
-        && ableitbar(C, $w_2$)) {
-          return true;
-        }
-    }
-  }
-  return false;
-}
-```
-]
-
-== Stack-Automaten
-#figure(image("./assets/stack-transitions.png"), caption: [Stackübergänge])
-
-$ a, b -> c $
-- $a$: vom Input
-- $b$: vom Stack entfernen (Bedingung)
-- $c$: auf den Stack
-
-#example[${0^n 1^n | n >= 0}$ \
-#figure(image("./assets/stackautomat.png"), caption: [Stackautomat])
-]
-
-#definition[Stackautomat][
-  $ P = (Q, Sigma, Gamma, delta, q_0, F) $
-  + $Q$: Zustände
-  + $Sigma$: Eingabe-Alphabet
-  + $Gamma$: Stack-Alphabet
-  + $delta$: $Q times Sigma_epsilon times Gamma_epsilon -> P(Q times Gamma_epsilon)$, Regeln
-  + $q_0 in Q$: Startzustand
-  + $F subset Q$: Akzeptierzustände
-
-  Die Regeln hängen ab vom aktuellen Zustand, vom aktuellen Inputzeichen und vom Zeichen, das zuoberst auf dem Stack liegt.
-
-  $delta$: Funktion mit drei Inputs (aktueller Zustand, Input-Zeichen, oberstes Zeichen auf dem Stack) und gibt ein Tupel zurück mit neuem Zustand und neuem obersten Zeichen auf dem Stack.
-
-  *Beachte:*
-  - Immer nicht-deterministisch
-  - $Gamma != Sigma$ möglich (z.B. \$-Symbol auf den Stack)
-]
-
-=== Visualisierung eines Stacks
-#example[
-  
-Grammatik:
-$ S &-> 0 S 1\
-&-> epsilon $
-
-Input: 0 0 0 1 1 1
-
-+ \$-Symbol auf den Stack (um später zu prüfen, ob der Stack leer ist)
-+ Variable $S$ auf den Stack
-+ Input 0 matcht nicht $->$ Variable $S -> 0 S 1$ (1 auf den Stack, dann $S$, dann 0)
-+ 0 matcht $->$ 0 vom Stack entfernen und weiter
-+ 0 matcht nicht $S -> 0 S 1$
-
-#figure(grid(gutter: 5pt, columns: (1fr, 1fr, 1fr, 1fr, 1fr), image("./assets/stack0.png"), image("./assets/stack1.png"), image("./assets/stack2.png"), image("./assets/stack3.png"),
-image("./assets/stack4.png"), [1], [2], [3], [4], [5]
-), caption: [Stack-Visualisierung])
-
-*Zustandsdiagramm:*
-#figure(grid(columns: (1fr, 1fr), image("./assets/state-start.png"), image("./assets/state-finish.png")), caption: [Zustandsdiagramm erstellen])
-]
-
-
-=== Grammatik #sym.arrow Stackautomat
-#figure(image("./assets/grammar-to-pda.png"), caption: [CNF zu Stackautomat])
-
-=== Backus-Naur-Form (BNF)
-Grammatik: 
-$ S &-> epsilon \ 
-&-> 0 S 1 $
-
-BNF: \
-`<string> ::= '' | 0 <string> 1`
-
-#example[Expression-Term-Factor][
-  ```
-  <expression> ::= <expression> + <term> | <term>
-  <term> ::= <term> * <factor> | <factor>
-  <factor> ::= ( <expression> ) | <number>
-  <number> ::= <number> <digit> | <digit>
-  <digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-  ```
-]
-
-== PDA zu CFG
-*Variablen* \
-Wörter beschreiben Pfade durch den Automaten:
-
-Variable $A_(p q)$ = Wörter, die von $p$ nach $q$ führen mit leerem Stack
-
-*Regeln* \
-Regeln beschreiben, wie sich Wege zerlegen lassen.
-$ A_(p q) -> A_(p r) A_(r q) $
-
-=== Stackautomat standardisieren
-+ Nur ein Akzeptierzustand
-  - $forall q in F$: Übergang in neuen Akzeptierzustand $q_a$
-+ Stack leeren:
-  - Markierungszeichen zu Beginn auf den Stack
-  - Am Schluss: $epsilon, . -> epsilon$ und dann $epsilon, \$ -> epsilon$ von $q_a$ nach $q'_a$
-+ Jeder Übergang legt entweder ein Zeichen auf den Stack oder entfernt eines
-#image("./assets/stack-standard.png")
-
-=== Regeln
-$A_(p q)$ wird, falls sich der Stack dazwischen nicht leert, zu folgendem:
-
-#figure(grid(columns: (2fr, 1fr),
-image("./assets/empty-stack-rule.png"),
-image("./assets/empty-stack-rule-applied.png")
-), caption: [Regel, falls der Stack dazwischen nie leer wird])
-
-$ A_(p q) -> a A_(r s) b $
-
-#figure(grid(columns: (2fr, 1fr), image("./assets/stack-rule-2.png"),
-image("./assets/stack-rule-2-applied.png")
-), caption: [Falls der Stack zwischendurch leer wird])
-
-$ A_(p q) -> A_(p r) A_(r q) $
-
-=== Grammatik ablesen
-Ausgangspunkt: Standardisierte Grammatik mit Startzustand $q_0$ und $F = {q_a}$.
-+ Startvariable $A_(q_0, q_a)$
-+ Regeln: #figure(grid(columns: (1fr ,1fr, 1fr), image("./assets/app_to_empty.png"),
-image("./assets/apq_to_aarsb.png"), image("./assets/apq_to_aprarq.png"), $A_(p p) -> epsilon$, $A_(p q) -> a A_(r s) b$, $A_(p q) -> A_(p r) A_(r q)$
-))
-
-#example[PDA zu CFG][
-  #grid(columns: (1fr, 1fr), image("./assets/pda-to-cfg-example.png"), [
-    *Grammatik*
-    $ A_(q_0 q_a) &-> epsilon A_(q_1 q_3) epsilon \
-    A_(q_1 q_3) &-> 0 A_(q_1 q_3) 1 \
-    &-> epsilon A_(q_2 q_2) epsilon \
-    A_(q_2 q_2) &-> epsilon $
-
-    *Vereinfachung*
-    $ S_0  &-> S \
-    S &-> 0 S 1 \
-    &-> epsilon $
-
-    $->$ Grammatik für $L = {0^n 1^n | n >= 0}$
-  ])
-  
-]
 
 = Nicht kontextfreie Sprachen
 == Pumping-Lemma für kontextfreie Sprachen
@@ -543,54 +254,6 @@ Mit dem Pumping-Lemma kann man beweisen, dass eine Sprache _nicht_ kontextfrei i
  
 
 = Turing-Maschinen
-#definition[Eine Turing-Maschine ist ein 7-Tupel $M = (Q, Sigma, Gamma, delta, q_0, q_"accept", q_"reject")$, wobei:
-+ $Q$ heisst die Menge der Zustände
-+ $Sigma$ heisst das Inputalphabet, es enthählt das Blank-Zeichen *nicht* #footnote[Wäre das Blank-Zeichen in $Sigma$, könnte man das leere Band nicht vom Input unterscheiden.]
-+ $Gamma$ ist das Bandalphabet, es enthält das Blank-Zeichen und $Sigma subset Gamma$
-+ $delta: Q times Gamma -> Q times Gamma times {L, R}$ ist die Übergangsfunktion]
-
-== Spielregeln
-+ Der Speicher ist unbegrenzt
-+ In jeder Zelle steht genau ein Zeichen
-+ Es ist immer nur eine Speicherzelle einsehbar
-+ Der Inhalt der aktuellen Zelle kann beliebig verändert werden
-+ Bewegung immer nur eine Zelle nach links oder rechts
-+ Kein weiterer Speicher (nur die Zustände eines endlichen Automaten)
-
-== Zustandsdiagramm
-#image("./assets/state-diagram-turing-machine.png", width: 50%)
-
-== Von einer TM erkannte Sprache
-$ L(M) = {w in Sigma^* | M "akzeptiert" w} $
-
-#definition[Ein Entscheider ist eine Turing-Mashchine, die auf jedem Input $w in Sigma^*$ anhält.
-Eine Sprache heisst entscheidbar, wenn ein Entscheider sie erkennt.]
-
-Eine Turing-entscheidbare Sprache ist auch Turing-erkennbar. Die Eigenschaft "Turing-entscheidbar" unterscheidet sich von der Eigenschaft "Turing-erkennbar" nur dadurch, dass bei einer entscheidbaren Sprache die Turing-Maschine auf jedem beliebigen Input anhalten muss, während bei einer nur erkennbaren Sprache einzelne Input-Wörter auch dazu führen können, dass die Turing-Maschine endlos weiterrechnet.
-
-== Turing Maschinen und moderne Computer
-#grid(columns: (1fr, 1fr), [
-  *Turing Maschine*
-  + Zustände Q
-  + Band, unendlich grosser Speicher
-  + Schreib-/Lesekopf
-  + Anhalten, $q_"accept"$ und $q_"reject"$
-  + Problemspezifisch
-], [
-  *Moderner Computer*
-  + Zustände der CPU: Statusbits, Registerwerte
-  + Virtueller Speicher: praktisch unbegrenzt
-  + Adress-Register, Programm-Zähler
-  + `exit(EXIT_SUCCESS)`, `exit(EXIT_FAILURE)`
-  + Kann beliebige Programme ausführen
-])
-
-== Aufzähler
-#definition[Aufzähler][Ein Aufzähler ist eine TM, die alle akzeptierbaren Wörter mit einem Drucker ausdruckt.]
-#definition[Rekursiv aufzählbare Sprache][Eine Sprache $L$ heisst rekursiv aufzählbar, wenn es einen Aufzähler gibt, der sie aufzählt.]
-
-Aufzählbare Sprache #sym.arrow.l.r.double Turing-erkennbare Sprache.
-
 == Berechnungsgeschichte
 #image("./assets/berechnungsgeschichte.png", width:80%)
 #image("./assets/transition.png", width: 80%)
@@ -1286,3 +949,347 @@ Für Turing-Vollständigkeit wird neben `LOOP` noch eine `GOTO`-Struktur benöti
 #for i in range(16) {
   image("./assets/exam" + str(i + 1) + ".png")
 }
+
+
+= Logik
+== Prädikate
+- Aussagen über mathematische Objekte, wahr oder falsch
+- Funktionen mit booleschen Rückgabewerten:
+$P$, $Q(n)$, $R(x, y, z)$
+
+
+== Verknüpfungen
+- und: $P and Q$
+- oder: $P or Q$
+- nicht: $not P$
+- Implikation $P => Q = not P or Q$
+
+== Distributivgesetze
+- $P and (Q or R) <=> (P and Q) or (P and R)$
+- $P or (Q and R) <=> (P or Q) and (P or R)$
+
+== De Morgan
+- $not (P and Q) <=> not P or not Q$
+- $P => Q <=> (not Q => not P)$
+
+== Quantoren
+- $forall i in {1, ..., n} (P_i)$ = (Für alle $i$ ist $P_i$ wahr)
+- $exists i in {1, ..., n} (P_i)$ = (Es gibt ein $i$ derart, dass $P_i$ wahr ist)
+
+=== Morgan 2.0
+"Nicht für alle" = "Es gibt einen Fall, für den nicht"
+$ not forall i in {1, ..., n}(P_i) \ <=> not (P_1 and dots.c and P_n) <=> not P_1 or dots.c or not P_n <=> exists i in {1, ..., n}(not P_i) $
+
+= Alphabet und Wort
+- Alphabet: $Sigma$
+- Wort: Ein $n$-Tuplel in $Sigma^n = Sigma times dots.c times Sigma$
+- Menge aller Wörter: $Sigma^* = {epsilon} union Sigma union Sigma^2 union dots.c = union.big_(k=0)^infinity Sigma^k$
+
+== Wortlänge
+- $|epsilon| = 0$
+- $|01010|_0 = 3$
+- $|(1201)^7| = 7 dot |1201| = 28, |w^n| = n dot |w|$
+
+
+= Beispiele für DEAs:
+- Durch drei teilbare Zahlen
+- Wörter mit einer geraden Anzahl $a$
+- Bedingungen an einzelne Zeichen, wie: Wörter, die mit einem $a$ beginnen und genau ein $b$ enthalten.
+
+= Kontextfreie Grammatik
+== Grammatik für Klammerausdrücke
+$ A &-> epsilon \ 
+&-> A A \
+&-> (A) $
+Oder (Kurzschreibweise):
+$ A -> epsilon | A A | (A) $
+
+=== Beispiel für Ableitung von Klammerausdruck
+Wort $(()())$ soll abgeleitet werden:
+$ A -> (A) -> (A A) -> ((A)A) -> ((A)(A)) -> ((epsilon)(A)) -> ((epsilon)(epsilon)) -> (()())  $
+
+== Parse Tree
+#definition[Zwei Ableitungen eines Wortes $w$ einer kontextfreien Sprache $L(G)$ heissen äquivalent, wenn sie den gleichen Ableitungsbaum haben. Hat eine Sprache Wörter mit verschiedenen Ableitungen, heisst sie mehrdeutig (engl. ambiguous)]
+
+Ein Beispiel einer Grammatik, die nicht eindeutige Ableitungen hat, ist:
+$ G = ({S}, {0, 1}, {S -> 0 S 1 | 1 S 0 | S S | epsilon}, S) $
+
+Ein Ausruck $001011$ produziert verschiedene Parsetrees (siehe @ambiguous-grammar).
+
+#figure(placement: auto, grid(columns: (1fr, 1fr), gutter: 1cm, image("./assets/derivation-1.png"), image("./assets/derivation-2.png")), caption: [Nicht eindeutig ableitbare Grammatik])<ambiguous-grammar>
+
+Von besonderer praktischer Bedeutung sind jedoch Grammatiken, die immer eindeutig ableitbar sind. Ein Beispiel solch einer Grammatik ist die `expression-term-factor`-Grammatik für einfache arithmetische Ausdrücke.
+
+
+=== regex $->$ CFG
+#example[Grammatik zum regulären Ausdruck `(ab)*|c`:
+
+$ "Alternative: " &S -> U | C \
+"*-Operation: " &U -> U P | epsilon \
+"Verkettung:" &P -> A B \
+"a: " &A -> a \
+"b: " &B -> b \
+"c: " &C -> c $]
+
+== Arithmetische Ausdrücke
+$ "expression" &-> "expression" + "term" \ 
+& -> "term" \
+"term" &-> "term" * "factor" \
+&-> "factor " \ 
+"factor" &-> ("expression") \
+&-> upright(N) \ 
+upright(N) &-> "NZ" \
+&-> upright(Z) \
+Z &-> 0|1|2|3|4|5|6|7|8|9 $
+
+
+=== Anwendungen der Chomsky-Normalform
+*Gegeben:* Grammatik $G$ in Chomsky-Normalform
+#theorem[Ableitung eines Wortes $w in L(G)$ ist immer in $2|w| - 1$ Regelanwendungen möglich.]
+#proof[
+  - $|w| - 1$ Regeln der Form $A -> B C$ um aus $S$ ein Wort aus $w$ Variablen zu erzeugen
+  - $|w|$ Regeln der Form $A -> a$, um das Wort $w$ zu erzeugen
+]
+
+
+=== Deterministisches Parsen
+*Aufgabe: $S =>^* w$* \
+Kann das Wort $w in Sigma^*$ von der Grammatik $G = (V, Sigma, R, S)$ erzeugt werden?
+
+*Verallgemeinerte Aufgabe: $A =>^* w$* \
+Kann das Wort $w in Sigma^*$ aus der Variablen $A$ in der Grammatik $G = (V, Sigma, R, s)$ abgeleitet werden?
+
+*Deterministische Antwort:* \
+Gesucht ist ein Programm mit der Signatur
+```java
+boolean ableitbar(Variable a, String w);
+```
+welches entscheiden kann, ob ein Wort $w$ aus der Variablen $V$ ableitbar ist.
+
+=== CYK-Ideen
++ Grammatik $G = (V, Sigma, R, S)$
++ Variable $A in V$
++ Wort $w in Sigma^*$
+
+*Frage:* Ist $w$ aus $A$ ableitbar? In Zeichen $A =>^* w$
+
+- Spezialfall $w = epsilon$: $A =>^* epsilon <=> A -> epsilon in R$
+- Spezialfall $|w| = 1$: $A =>^* w <=> A -> w in R$
+- Fall $|w| > 1$:
+$ A =>^* w => exists cases(A -> B C in R, w = w_1 w_2\, w_i in Sigma^*) "mit" cases(B =>^* w_1, C =>^* w_2) $
+
+=== CYK-Algorithmus
+
+#[
+  #show raw.line: it => {
+  show regex("\\$.*\\$"): it => {
+    eval(it.text)
+  }
+  it.body.text
+} 
+```
+boolean ableitbar(Variable A, String w) {
+  if (w.length() == 0) {
+    return $A -> epsilon in R$;
+  }
+  if (w.length() == 1) {
+    return $A -> w in R$;
+  }
+  foreach Unterteilung $w = w_1 w_2$ {
+    foreach $A -> B C in R$ {
+      if (ableitbar(B, $w_1$) 
+        && ableitbar(C, $w_2$)) {
+          return true;
+        }
+    }
+  }
+  return false;
+}
+```
+]
+
+== Stack-Automaten
+#figure(image("./assets/stack-transitions.png"), caption: [Stackübergänge])
+
+$ a, b -> c $
+- $a$: vom Input
+- $b$: vom Stack entfernen (Bedingung)
+- $c$: auf den Stack
+
+#example[${0^n 1^n | n >= 0}$ \
+#figure(image("./assets/stackautomat.png"), caption: [Stackautomat])
+]
+
+#definition[Stackautomat][
+  $ P = (Q, Sigma, Gamma, delta, q_0, F) $
+  + $Q$: Zustände
+  + $Sigma$: Eingabe-Alphabet
+  + $Gamma$: Stack-Alphabet
+  + $delta$: $Q times Sigma_epsilon times Gamma_epsilon -> P(Q times Gamma_epsilon)$, Regeln
+  + $q_0 in Q$: Startzustand
+  + $F subset Q$: Akzeptierzustände
+
+  Die Regeln hängen ab vom aktuellen Zustand, vom aktuellen Inputzeichen und vom Zeichen, das zuoberst auf dem Stack liegt.
+
+  $delta$: Funktion mit drei Inputs (aktueller Zustand, Input-Zeichen, oberstes Zeichen auf dem Stack) und gibt ein Tupel zurück mit neuem Zustand und neuem obersten Zeichen auf dem Stack.
+
+  *Beachte:*
+  - Immer nicht-deterministisch
+  - $Gamma != Sigma$ möglich (z.B. \$-Symbol auf den Stack)
+]
+
+=== Visualisierung eines Stacks
+#example[
+  
+Grammatik:
+$ S &-> 0 S 1\
+&-> epsilon $
+
+Input: 0 0 0 1 1 1
+
++ \$-Symbol auf den Stack (um später zu prüfen, ob der Stack leer ist)
++ Variable $S$ auf den Stack
++ Input 0 matcht nicht $->$ Variable $S -> 0 S 1$ (1 auf den Stack, dann $S$, dann 0)
++ 0 matcht $->$ 0 vom Stack entfernen und weiter
++ 0 matcht nicht $S -> 0 S 1$
+
+#figure(grid(gutter: 5pt, columns: (1fr, 1fr, 1fr, 1fr, 1fr), image("./assets/stack0.png"), image("./assets/stack1.png"), image("./assets/stack2.png"), image("./assets/stack3.png"),
+image("./assets/stack4.png"), [1], [2], [3], [4], [5]
+), caption: [Stack-Visualisierung])
+
+*Zustandsdiagramm:*
+#figure(grid(columns: (1fr, 1fr), image("./assets/state-start.png"), image("./assets/state-finish.png")), caption: [Zustandsdiagramm erstellen])
+]
+
+
+=== Grammatik #sym.arrow Stackautomat
+#figure(image("./assets/grammar-to-pda.png"), caption: [CNF zu Stackautomat])
+
+=== Backus-Naur-Form (BNF)
+Grammatik: 
+$ S &-> epsilon \ 
+&-> 0 S 1 $
+
+BNF: \
+`<string> ::= '' | 0 <string> 1`
+
+#example[Expression-Term-Factor][
+  ```
+  <expression> ::= <expression> + <term> | <term>
+  <term> ::= <term> * <factor> | <factor>
+  <factor> ::= ( <expression> ) | <number>
+  <number> ::= <number> <digit> | <digit>
+  <digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+  ```
+]
+
+== PDA zu CFG
+*Variablen* \
+Wörter beschreiben Pfade durch den Automaten:
+
+Variable $A_(p q)$ = Wörter, die von $p$ nach $q$ führen mit leerem Stack
+
+*Regeln* \
+Regeln beschreiben, wie sich Wege zerlegen lassen.
+$ A_(p q) -> A_(p r) A_(r q) $
+
+=== Stackautomat standardisieren
++ Nur ein Akzeptierzustand
+  - $forall q in F$: Übergang in neuen Akzeptierzustand $q_a$
++ Stack leeren:
+  - Markierungszeichen zu Beginn auf den Stack
+  - Am Schluss: $epsilon, . -> epsilon$ und dann $epsilon, \$ -> epsilon$ von $q_a$ nach $q'_a$
++ Jeder Übergang legt entweder ein Zeichen auf den Stack oder entfernt eines
+#image("./assets/stack-standard.png")
+
+=== Regeln
+$A_(p q)$ wird, falls sich der Stack dazwischen nicht leert, zu folgendem:
+
+#figure(grid(columns: (2fr, 1fr),
+image("./assets/empty-stack-rule.png"),
+image("./assets/empty-stack-rule-applied.png")
+), caption: [Regel, falls der Stack dazwischen nie leer wird])
+
+$ A_(p q) -> a A_(r s) b $
+
+#figure(grid(columns: (2fr, 1fr), image("./assets/stack-rule-2.png"),
+image("./assets/stack-rule-2-applied.png")
+), caption: [Falls der Stack zwischendurch leer wird])
+
+$ A_(p q) -> A_(p r) A_(r q) $
+
+=== Grammatik ablesen
+Ausgangspunkt: Standardisierte Grammatik mit Startzustand $q_0$ und $F = {q_a}$.
++ Startvariable $A_(q_0, q_a)$
++ Regeln: #figure(grid(columns: (1fr ,1fr, 1fr), image("./assets/app_to_empty.png"),
+image("./assets/apq_to_aarsb.png"), image("./assets/apq_to_aprarq.png"), $A_(p p) -> epsilon$, $A_(p q) -> a A_(r s) b$, $A_(p q) -> A_(p r) A_(r q)$
+))
+
+#example[PDA zu CFG][
+  #grid(columns: (1fr, 1fr), image("./assets/pda-to-cfg-example.png"), [
+    *Grammatik*
+    $ A_(q_0 q_a) &-> epsilon A_(q_1 q_3) epsilon \
+    A_(q_1 q_3) &-> 0 A_(q_1 q_3) 1 \
+    &-> epsilon A_(q_2 q_2) epsilon \
+    A_(q_2 q_2) &-> epsilon $
+
+    *Vereinfachung*
+    $ S_0  &-> S \
+    S &-> 0 S 1 \
+    &-> epsilon $
+
+    $->$ Grammatik für $L = {0^n 1^n | n >= 0}$
+  ])
+  
+]
+
+
+
+#definition[Eine Turing-Maschine ist ein 7-Tupel $M = (Q, Sigma, Gamma, delta, q_0, q_"accept", q_"reject")$, wobei:
++ $Q$ heisst die Menge der Zustände
++ $Sigma$ heisst das Inputalphabet, es enthählt das Blank-Zeichen *nicht* #footnote[Wäre das Blank-Zeichen in $Sigma$, könnte man das leere Band nicht vom Input unterscheiden.]
++ $Gamma$ ist das Bandalphabet, es enthält das Blank-Zeichen und $Sigma subset Gamma$
++ $delta: Q times Gamma -> Q times Gamma times {L, R}$ ist die Übergangsfunktion]
+
+== Spielregeln
++ Der Speicher ist unbegrenzt
++ In jeder Zelle steht genau ein Zeichen
++ Es ist immer nur eine Speicherzelle einsehbar
++ Der Inhalt der aktuellen Zelle kann beliebig verändert werden
++ Bewegung immer nur eine Zelle nach links oder rechts
++ Kein weiterer Speicher (nur die Zustände eines endlichen Automaten)
+
+== Zustandsdiagramm
+#image("./assets/state-diagram-turing-machine.png", width: 50%)
+
+== Von einer TM erkannte Sprache
+$ L(M) = {w in Sigma^* | M "akzeptiert" w} $
+
+#definition[Ein Entscheider ist eine Turing-Mashchine, die auf jedem Input $w in Sigma^*$ anhält.
+Eine Sprache heisst entscheidbar, wenn ein Entscheider sie erkennt.]
+
+Eine Turing-entscheidbare Sprache ist auch Turing-erkennbar. Die Eigenschaft "Turing-entscheidbar" unterscheidet sich von der Eigenschaft "Turing-erkennbar" nur dadurch, dass bei einer entscheidbaren Sprache die Turing-Maschine auf jedem beliebigen Input anhalten muss, während bei einer nur erkennbaren Sprache einzelne Input-Wörter auch dazu führen können, dass die Turing-Maschine endlos weiterrechnet.
+
+== Turing Maschinen und moderne Computer
+#grid(columns: (1fr, 1fr), [
+  *Turing Maschine*
+  + Zustände Q
+  + Band, unendlich grosser Speicher
+  + Schreib-/Lesekopf
+  + Anhalten, $q_"accept"$ und $q_"reject"$
+  + Problemspezifisch
+], [
+  *Moderner Computer*
+  + Zustände der CPU: Statusbits, Registerwerte
+  + Virtueller Speicher: praktisch unbegrenzt
+  + Adress-Register, Programm-Zähler
+  + `exit(EXIT_SUCCESS)`, `exit(EXIT_FAILURE)`
+  + Kann beliebige Programme ausführen
+])
+
+== Aufzähler
+#definition[Aufzähler][Ein Aufzähler ist eine TM, die alle akzeptierbaren Wörter mit einem Drucker ausdruckt.]
+#definition[Rekursiv aufzählbare Sprache][Eine Sprache $L$ heisst rekursiv aufzählbar, wenn es einen Aufzähler gibt, der sie aufzählt.]
+
+Aufzählbare Sprache #sym.arrow.l.r.double Turing-erkennbare Sprache.
+
