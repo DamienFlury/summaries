@@ -21,8 +21,11 @@
 
 #let given_question(given, question) = block(inset: (1em))[*Gegeben:* #given \ *Fragestellung:* #question]
 
-#set page("a4", numbering: "1", margin: 20pt, columns: 2)
+
+#set page("a4", numbering: "1", margin: 20pt, columns: 3, flipped: true)
 #counter(page).update(1)
+
+#text(size: 24pt, [Automaten und Sprachen])
 
 #outline(indent: auto)
 
@@ -31,6 +34,7 @@
 - Aussagen über mathematische Objekte, wahr oder falsch
 - Funktionen mit booleschen Rückgabewerten:
 $P$, $Q(n)$, $R(x, y, z)$
+
 
 == Verknüpfungen
 - und: $P and Q$
@@ -52,7 +56,7 @@ $P$, $Q(n)$, $R(x, y, z)$
 
 === Morgan 2.0
 "Nicht für alle" = "Es gibt einen Fall, für den nicht"
-$ not forall i in {1, ..., n}(P_i) <=> not (P_1 and dots.c and P_n) <=> not P_1 or dots.c or not P_n <=> exists i in {1, ..., n}(not P_i) $
+$ not forall i in {1, ..., n}(P_i) \ <=> not (P_1 and dots.c and P_n) <=> not P_1 or dots.c or not P_n <=> exists i in {1, ..., n}(not P_i) $
 
 = Alphabet und Wort
 - Alphabet: $Sigma$
@@ -1277,3 +1281,8 @@ LOOP y DO P END
 
 === Turing-Vollständigkeit
 Für Turing-Vollständigkeit wird neben `LOOP` noch eine `GOTO`-Struktur benötigt.
+
+= Beispielprüfung
+#for i in range(16) {
+  image("./assets/exam" + str(i + 1) + ".png")
+}
