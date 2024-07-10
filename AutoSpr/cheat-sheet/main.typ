@@ -23,7 +23,7 @@
 #let given_question(given, question) = block(inset: (1em))[*Gegeben:* #given \ *Fragestellung:* #question]
 
 
-#set page("a4", numbering: "1", margin: 20pt)
+#set page("a4", numbering: "1", margin: 20pt, columns: 3, flipped: true)
 #counter(page).update(1)
 
 #text(size: 24pt, [Automaten und Sprachen])
@@ -258,32 +258,6 @@ Mit dem Pumping-Lemma kann man beweisen, dass eine Sprache _nicht_ kontextfrei i
 #image("./assets/berechnungsgeschichte.png", width:80%)
 #image("./assets/transition.png", width: 80%)
 
-== Vergleich von Maschinen
-#definition[Eine TM $M_1$ ist "leistungsfähiger" als eine TM $M_2$, wenn $M_1$ die Maschine $M_2$ simulieren kann
-$ M_2 <=_S M_1 $
-
-$M_2$ ist simulierbar auf $M_1$.]
-
-Beispiele:
-- $"TM" scripts(<=)_S "Minecraft"$
-- $"8-Bit CPU" scripts(<=)_S "Minecraft" scripts(<=)_S "TM"$
-
-== Unendlichkeit
-Die Mengen $NN$ und $RR$ sind nicht gleich mächtig, da es keine bijektive Abbildung $NN -> RR$ gibt.
-#definition[Mengen $A$ und $B$ heissen _gleich mächtig_, $A tilde.eq B$, wenn es eine Bijektion $A -> B$ gibt.]
-
-#definition[Eine Menge $A$ heisst _unendlich_, wenn sie gleich mächtig wie eine echte Teilmenge ist.]
-
-#definition[$A$ heisst _abzählbar unendlich_, wenn $A tilde.eq NN$, d.h. $A$ gleich mächtig wie $N$ ist.]
-
-#theorem[Die Potenzmenge $P(A)$ einer abzählbar unendlichen Menge $A$ ist immer _überabzählbar unendlich_.]
-
-#theorem[Die Vereinigung von endlich vielen abzählbaren Mengen ist abzählbar. Das kartesische Produkt $A times B$ zweier abzählbaren Mengen $A, B$ ist abzählbar.]
-
-*Anwendungen:*
-- Abzählbar unendlich: $Sigma^*$, Menge aller DEAs/NEAs/PDAs/CFGs
-- Überabzählbar unendlich: Menge aller Sprachen $P(Sigma^*)$
-
 
 = Entscheidbarkeit
 Eine Sprache heisst entscheidbar, wenn es einen Entscheider gibt, der prüfen kann, ob ein Wort $w$ in der Sprache liegt.
@@ -302,93 +276,6 @@ Daraus folgt $L(A) = L(M_A)$, oder $M_A$ ist ein Entscheider für die Sprache $L
 + Andernfalls: $q_"reject"$
 ]
 
-== Berechenbare Zahlen
-#definition[Berechenbare Zahl][Eine Zahl $w$ heisst berechenbar, wenn es eine Turingmaschine $M$ gibt, die auf leerem Band startet und auf dem Band nacheinander die Stellen der Zahl ausgibt.
-
-Eine Zahl $w$ ist somit berechenbar, wenn es eine Turing-Maschine gibt, die sie berechnet.]
-
-#example[
-  $pi, e, sqrt(2), gamma, phi = (sqrt(5) - 1)/2$
-]
-
-=== Wieviele berechenbare Zahlen gibt es?
-_Sind alle reellen Zahlen berechenbar?_
-+ Es gibt höchstens so viele berechenbare Zahlen wie Turing-Maschinen
-+ Die Menge der Turing-Maschinen ist abzählbar unendlich
-+ Die Menge der reellen Zahlen $RR$ ist überabzählbar unendlich
-+ $=>$ fast alle reelle Zahlen sind nicht berechenbar
-
-== Hilberts 10. Problem
-Gibt es ganzzahlige Lösungen für Polynomgleichungen?
-
-$ x^2 - y &= 0\
-x^n + y^n &= z^n $
-
-Eine TM, die verschiedene Möglichkeiten ausprobiert, ist hierfür nicht geeginet; falls es keine Lösung gibt, würde die TM nicht anhalten. $=>$ Es bräuchte einen Entscheider. Dieses Problem wurde jedoch 1970 von Yuri Matiyasevich als nicht entscheidbar bewiesen.
-
-== Sprachprobleme
-Ein normales Problem soll zunächst in eine Ja/Nein-Frage übersetzt werden.
-
-#example[
-Problem: Finden sie eine Lösung der quadratischen Gleichung:
-$ x^2 - x - 1 = 0 $
-
-Dies ist jedoch nicht wirklich als Sprache formuliert. Wir können folgende Formulierung postieren:
-
-Sei $L$ die Sprache bestehend aus Wörtern der Form
-$ w = upright(a)=a,upright(b)=b,upright(c)=c,upright(x)=x $
-wobei $a,b,c,x$ Dezimaldarstellungen von Zahlen sind. Ein Wort gehört genau dann zur Sprache $w$, wenn $a x^2 + b x + c = 0$ gilt. Ist
-$upright(a)=1, upright(b)=-1, upright(c)=-1, upright(x)=3 in L$?
-]
-
-#example[
-  Gegeben ist eine natürliche Zahl $n$, berechne die ersten 10 Stellen der Dezimaldarstellung von $sqrt(n)$.
-
-  Dies ist wieder kein normales Sprachproblem $->$ Als Entscheidungsproblem mit Ja/Nein-Antwort formulieren:
-
-  Sind die ersten 10 Stellen der Dezimaldarstellung von $sqrt(2) = 1.414213562$?
-
-  *Als Sprache formuliert:* Sei $L$ die Sprache bestehend aus Zeichenketten der Form $n,x$ wobei n die Dezimaldarstellung einer natürlichen Zahl ist und $x$ die ersten 10 Stellen einer Dezimalzahl. Gilt $2, 1.414213562 in L$?
-]
-
-=== $epsilon$-Akzeptanzproblem für endliche Automaten
-*Problem:* Kan der endliche Automat $A$ das leere Wort akzeptieren?
-
-*Als Sprachproblem:* Ist die Sprache $L = {angle.l A angle.r | epsilon in L(A)}$ entscheidbar?
-
-*Entscheidungsalgorithmus:*
-+ Wandle $A$ in einen DEA um
-+ Ist der Startzustand ein Akzeptierzustand $q_0 in F$?
-
-=== Gleichheitsproblem für DEAs
-*Problem:* Akzeptieren die endlichen Automaten $A_1$ und $A_2$ die gleiche Sprache, $L(A_1) = L(A_2)$?
-
-*Sprachproblem:* Ist die Sprache $L = {angle.l A_1, A_2 angle.r | L(A_1) = L(A_2)}$ entscheidbar?
-
-*Entscheidungsalgorithmus:*
-+ Wandle $A_1$ in einen minimalen Automaten $A'_1$ um
-+ Wandle $A_2$ in einen minimalen Automaten $A'_2$ um
-+ Ist $A'_1 = A'_2$?
-
-=== Akzeptanzproblem für DEAs
-*Problem:* Akzeptiert der endliche Automat $A$ das Wort $w$?
-
-*Spachproblem:* Ist die Sprache $L = {angle.l A, w angle.r | w in L(A)}$ entscheidbar?
-
-*Entscheidungsalgorithmus:*
-+ Wandle A in einen DEA A' um
-+ Simuliere A' mit Hilfe einer TM
-+ Hält die Turing-Maschine im Zustand $q_"accept"$?
-
-=== Akzeptanzproblem für CFGs
-*Problem:* Kann das Wort $w$ aus der Grammatik $G$ produziert werden?
-
-*Als Sprachproblem:* Ist die Sprache $L = {angle.l G, w angle.r | w in L(G)}$ entscheidbar?
-
-*Entscheidungsalgorithmus:*
-+ Kontrollieren, dass $angle.l G angle.r$ wirklich eine Grammatik beschreibt
-+ Grammatik in Chomsky-Normalform bringen
-+ Mit dem CYK-Algorithmus prüfen, ob $w$ aus $G$ produziert werden kann
 
 == Defintion Entscheidbarkeit
 #definition[Entscheider][
@@ -408,21 +295,6 @@ $ L_P = {w in Sigma^* | w "ist Lösung des Problems" P} $
 
 #example[Halteproblem][$ italic("HALT")_"TM" = { angle.l M, w angle.r | M "hält auf Input" w} $]
 
-== Nicht entscheidbare Probleme
-
-#theorem[Alan Turing][$A_"TM"$ ist nicht entscheidbar.]
-#proof[Konstruiere aus dem Entscheider $H$ für $A_"TM"$ eine Maschine $D$ mit Input $angle.l M angle.r$.
-+ Lasse $H$ auf Input $angle.l M, angle.l M angle.r angle.r$ laufen
-+ Falls $H$ akzeptiert: $q_"reject"$
-+ Falls $H$ verwirft: $q_"accept"$
-
-Wende jetzt $D$ auf $angle.l D angle.r$ an:\
-$D(angle.l D angle.r) "akzeptiert" <=> D "verwirft" angle.l D angle.r$ \
-$D(angle.l D angle.r) "verwirft" <=> D "akzeptiert" angle.l D angle.r$
-
-Widerspruch!
-]
-
 #theorem[Halteproblem][Das spezielle Halteproblem $ italic("HALT")epsilon_"TM" \ = {angle.l M angle.r | M "ist eine Turingmaschine und" M "hält auf leerem Band"} $ ist nicht entscheidbar.]
 
 #theorem[Allgemeines Halteproblem][Das allgemeine Halteproblem 
@@ -432,63 +304,6 @@ ist nicht entscheidbar.]
 Weitere nicht entscheidbare Probleme:
 - Leerheitsproblem $E_"TM"$
 
-== Reduktion
-
-Berechenbare Abbildung $f: Sigma^* -> Sigma^*$ so, dass
-$ w in A <=> f(w) in B $
-Notation: $f: A <= B$, "$A$ leichter entscheidbar als $B$"
-
-Entscheidbarkeit: $B$ entscheidbar, $f : A <= B => A "entscheidbar"$
-
-#proof[$H$ ein Entscheider für $B$, dann ist $H circle.small f$ ein Entscheider für $A$.]
-
-Folgerung: $A$ nicht entscheidbar, $A <= B => B$ nicht entscheidbar.
-
-=== Reduktionsbeispiele
-In folgenden Beispielen ist $M$ eine Maschine, die ein Wort $w$ entweder akzeptiert oder verwirft. Wie wir bewiesen haben, ist es unmöglich, einen Entscheider für das Akzeptanzproblem $A_"TM"$ zu konstruieren.
-#example[Reduktion für das spezielle Halteproblem][
-  
-  Programm $S$:
-  + Führe $M$ auf $w$ aus
-  + $M$ hält in $q_"accept"$: akzeptiere
-  + $M$ hält in $q_"reject"$: Endlosschleife
-
-  Wenn $H$ ein Entscheider für $italic("HALT")epsilon_"TM"$ wäre, könnte man daraus einen Entscheider für $A_"TM"$ konstruieren:
-  + Konstruiere das Programm $S$
-  + Wende $H$ auf $angle.l S angle.r$ an
-]
-
-#example[Reduktion für das Leerheitsproblem $A_"TM" <= E_"TM"$][
-  Ist die Sprache $L(M)$ leer? $-> overline(E)_"TM"$ ist $L(M) eq.not emptyset$ 
-
-  Programm $S$ mit Input $u$:
-  + $M$ auf $w$ laufen lassen
-  + $M$ akzeptiert $w$: $q_"accept"$
-  + Andernfalls: $q_"reject"$
-
-  $ M "akzeptiert" w <=> S "akzeptiert" L(S) = Sigma^* != emptyset $
-
-  Wenn $H$ ein Entscheider für $E_"TM"$ wäre, könnte man daraus einen Entscheider für $A_"TM"$ konstruieren:
-  + Konstruiere das Programm $S$
-  + Wende $H$ auf $angle.l S angle.r$ an
-]
-
-#example[Regularitätsproblem $A_"TM" <= italic("REGULAR")_"TM"$][
-  Ist die Sprache $L(M)$ regulär?
-
-  Programm $S$ mit Input $u$:
-  + $u in.not {0^n 1^n | n >= 0} -> q_"reject"$
-  + $M$ auf $w$ laufen lassen
-  + $M$ akzeptiert $w$: $q_"accept"$
-  + $q_"reject"$
-
-  $ &M "akzeptiert" w &&<=> S "akzepiert" {0^n 1^n | n>= 0}, "nicht regulär" \
-  &M "akzeptiert" w "nicht" &&<=> S "akzeptiert" emptyset, "regulär" $
-
-  Wäre $H$ ein Entscheider für $italic("REGULAR"_"TM")$, könnte man daraus einen Entscheider für $A_"TM"$ konstruieren:
-  + Konstruiere das Programm $S$
-  + Wende $H$ auf $angle.l S angle.r$ an
-]
 
 == Satz von Rice
 Eigenschaften Turing-erkennbarer Sprachen
@@ -505,31 +320,9 @@ nicht entscheidbar.]
 
 = Komplexität
 == P -- NP
-=== Folgerungen aus P = NP
-+ Für jedes Problem in NP gibt es einen polynomiellen Algorithmus
-+ Es gibt keine "schwierigen" Probleme
-+ Mit Moore's Law lässt sich jedes Problem "lösen"
-+ Es gibt keine sichere Kryptographie
-
-=== Folgerungen aus P #sym.eq.not NP
-+ NP-vollständige Probleme haben nicht skalierende Lösungen
-+ Moore's Law hilft nicht in NP \\ P
-
-=== NP-vollständig
-Eine entscheidbare Sprache B heisst NP-vollständig, wenn sich jede Sprache A in NP polynomiell auf B reduzieren lässt:
-$ A scripts(<=)_P B, forall A in "NP" $
-
-Wenn ein Problem NP-vollständig ist:
-- Lösung braucht typischerweise exponentielle Zeit
-- Korrektheit der Lösung ist leicht (in polynomieller Zeit) zu prüfen
-- Andernfalls wären Tests schon exponentiell und somit in Software nicht sinnvoll
-
-Falls P #sym.eq.not NP, dann können NP-vollständige Probleme nicht in polynomieller Zeit gelöst werden.
 
 == Aufüllrätsel
 Viele Ausfüllrätsel wie z.B. Sudoku sind exponentiell lösbar. Man versucht dabei einfach jede Möglichkeit und falls eine Möglichkeit nicht zu einer korrekten Lösung führt, machen wir ein Backtracking. Man spricht von einer Nicht-Deterministischen Turing-Maschine, bei welcher wir alle Möglichkeiten durchprobieren müssen. Eine solche Maschine kann aber polynomiell verifiziert werden, in dem man den Pfad durchgeht, welcher verwendet worden ist für die Lösung des Rätsels und prüft, ob dieser in $q_"accept"$ landet.
-
-== Polynome Verifizierer
 
 
 == Reduktion Sudoku #sym.arrow CONSTRAINTS #sym.arrow SAT
@@ -552,6 +345,26 @@ Beschreibe das Finden der Berechnungsgeschichte von $M$ als polynomielles Ausfü
 Das SAT-Problem prüft im Allgemeinen, ob ein Ausdruck `true` wird. Dann ist er _satisfiable_. Es sind folgende Dinge gegeben:
 - Aussagenlogische Formel
 
+=== Folgerungen aus P = NP
++ Für jedes Problem in NP gibt es einen polynomiellen Algorithmus
++ Es gibt keine "schwierigen" Probleme
++ Mit Moore's Law lässt sich jedes Problem "lösen"
++ Es gibt keine sichere Kryptographie
+
+=== Folgerungen aus P #sym.eq.not NP
++ NP-vollständige Probleme haben nicht skalierende Lösungen
++ Moore's Law hilft nicht in NP \\ P
+
+=== NP-vollständig
+Eine entscheidbare Sprache B heisst NP-vollständig, wenn sich jede Sprache A in NP polynomiell auf B reduzieren lässt:
+$ A scripts(<=)_P B, forall A in "NP" $
+
+Wenn ein Problem NP-vollständig ist:
+- Lösung braucht typischerweise exponentielle Zeit
+- Korrektheit der Lösung ist leicht (in polynomieller Zeit) zu prüfen
+- Andernfalls wären Tests schon exponentiell und somit in Software nicht sinnvoll
+
+Falls P #sym.eq.not NP, dann können NP-vollständige Probleme nicht in polynomieller Zeit gelöst werden.
 #reduction[
 - Variablen (boolesche Werte)
 - Aktion, die den Wahrheitszustands einer Variable verändert
@@ -945,11 +758,6 @@ LOOP y DO P END
 === Turing-Vollständigkeit
 Für Turing-Vollständigkeit wird neben `LOOP` noch eine `GOTO`-Struktur benötigt.
 
-= Beispielprüfung
-#for i in range(16) {
-  image("./assets/exam" + str(i + 1) + ".png")
-}
-
 
 = Logik
 == Prädikate
@@ -1204,6 +1012,32 @@ $ A_(p q) -> A_(p r) A_(r q) $
 
 === Regeln
 $A_(p q)$ wird, falls sich der Stack dazwischen nicht leert, zu folgendem:
+== Vergleich von Maschinen
+#definition[Eine TM $M_1$ ist "leistungsfähiger" als eine TM $M_2$, wenn $M_1$ die Maschine $M_2$ simulieren kann
+$ M_2 <=_S M_1 $
+
+$M_2$ ist simulierbar auf $M_1$.]
+
+Beispiele:
+- $"TM" scripts(<=)_S "Minecraft"$
+- $"8-Bit CPU" scripts(<=)_S "Minecraft" scripts(<=)_S "TM"$
+
+== Unendlichkeit
+Die Mengen $NN$ und $RR$ sind nicht gleich mächtig, da es keine bijektive Abbildung $NN -> RR$ gibt.
+#definition[Mengen $A$ und $B$ heissen _gleich mächtig_, $A tilde.eq B$, wenn es eine Bijektion $A -> B$ gibt.]
+
+#definition[Eine Menge $A$ heisst _unendlich_, wenn sie gleich mächtig wie eine echte Teilmenge ist.]
+
+#definition[$A$ heisst _abzählbar unendlich_, wenn $A tilde.eq NN$, d.h. $A$ gleich mächtig wie $N$ ist.]
+
+#theorem[Die Potenzmenge $P(A)$ einer abzählbar unendlichen Menge $A$ ist immer _überabzählbar unendlich_.]
+
+#theorem[Die Vereinigung von endlich vielen abzählbaren Mengen ist abzählbar. Das kartesische Produkt $A times B$ zweier abzählbaren Mengen $A, B$ ist abzählbar.]
+
+*Anwendungen:*
+- Abzählbar unendlich: $Sigma^*$, Menge aller DEAs/NEAs/PDAs/CFGs
+- Überabzählbar unendlich: Menge aller Sprachen $P(Sigma^*)$
+
 
 #figure(grid(columns: (2fr, 1fr),
 image("./assets/empty-stack-rule.png"),
@@ -1292,4 +1126,227 @@ Eine Turing-entscheidbare Sprache ist auch Turing-erkennbar. Die Eigenschaft "Tu
 #definition[Rekursiv aufzählbare Sprache][Eine Sprache $L$ heisst rekursiv aufzählbar, wenn es einen Aufzähler gibt, der sie aufzählt.]
 
 Aufzählbare Sprache #sym.arrow.l.r.double Turing-erkennbare Sprache.
+
+
+
+== Vergleich von Maschinen
+#definition[Eine TM $M_1$ ist "leistungsfähiger" als eine TM $M_2$, wenn $M_1$ die Maschine $M_2$ simulieren kann
+$ M_2 <=_S M_1 $
+
+$M_2$ ist simulierbar auf $M_1$.]
+
+Beispiele:
+- $"TM" scripts(<=)_S "Minecraft"$
+- $"8-Bit CPU" scripts(<=)_S "Minecraft" scripts(<=)_S "TM"$
+
+== Unendlichkeit
+Die Mengen $NN$ und $RR$ sind nicht gleich mächtig, da es keine bijektive Abbildung $NN -> RR$ gibt.
+#definition[Mengen $A$ und $B$ heissen _gleich mächtig_, $A tilde.eq B$, wenn es eine Bijektion $A -> B$ gibt.]
+
+#definition[Eine Menge $A$ heisst _unendlich_, wenn sie gleich mächtig wie eine echte Teilmenge ist.]
+
+#definition[$A$ heisst _abzählbar unendlich_, wenn $A tilde.eq NN$, d.h. $A$ gleich mächtig wie $N$ ist.]
+
+#theorem[Die Potenzmenge $P(A)$ einer abzählbar unendlichen Menge $A$ ist immer _überabzählbar unendlich_.]
+
+#theorem[Die Vereinigung von endlich vielen abzählbaren Mengen ist abzählbar. Das kartesische Produkt $A times B$ zweier abzählbaren Mengen $A, B$ ist abzählbar.]
+
+*Anwendungen:*
+- Abzählbar unendlich: $Sigma^*$, Menge aller DEAs/NEAs/PDAs/CFGs
+- Überabzählbar unendlich: Menge aller Sprachen $P(Sigma^*)$
+
+
+
+== Berechenbare Zahlen
+#definition[Berechenbare Zahl][Eine Zahl $w$ heisst berechenbar, wenn es eine Turingmaschine $M$ gibt, die auf leerem Band startet und auf dem Band nacheinander die Stellen der Zahl ausgibt.
+
+Eine Zahl $w$ ist somit berechenbar, wenn es eine Turing-Maschine gibt, die sie berechnet.]
+
+#example[
+  $pi, e, sqrt(2), gamma, phi = (sqrt(5) - 1)/2$
+]
+
+=== Wieviele berechenbare Zahlen gibt es?
+_Sind alle reellen Zahlen berechenbar?_
++ Es gibt höchstens so viele berechenbare Zahlen wie Turing-Maschinen
++ Die Menge der Turing-Maschinen ist abzählbar unendlich
++ Die Menge der reellen Zahlen $RR$ ist überabzählbar unendlich
++ $=>$ fast alle reelle Zahlen sind nicht berechenbar
+
+== Hilberts 10. Problem
+Gibt es ganzzahlige Lösungen für Polynomgleichungen?
+
+$ x^2 - y &= 0\
+x^n + y^n &= z^n $
+
+Eine TM, die verschiedene Möglichkeiten ausprobiert, ist hierfür nicht geeginet; falls es keine Lösung gibt, würde die TM nicht anhalten. $=>$ Es bräuchte einen Entscheider. Dieses Problem wurde jedoch 1970 von Yuri Matiyasevich als nicht entscheidbar bewiesen.
+
+== Sprachprobleme
+Ein normales Problem soll zunächst in eine Ja/Nein-Frage übersetzt werden.
+
+#example[
+Problem: Finden sie eine Lösung der quadratischen Gleichung:
+$ x^2 - x - 1 = 0 $
+
+Dies ist jedoch nicht wirklich als Sprache formuliert. Wir können folgende Formulierung postieren:
+
+Sei $L$ die Sprache bestehend aus Wörtern der Form
+$ w = upright(a)=a,upright(b)=b,upright(c)=c,upright(x)=x $
+wobei $a,b,c,x$ Dezimaldarstellungen von Zahlen sind. Ein Wort gehört genau dann zur Sprache $w$, wenn $a x^2 + b x + c = 0$ gilt. Ist
+$upright(a)=1, upright(b)=-1, upright(c)=-1, upright(x)=3 in L$?
+]
+
+#example[
+  Gegeben ist eine natürliche Zahl $n$, berechne die ersten 10 Stellen der Dezimaldarstellung von $sqrt(n)$.
+
+  Dies ist wieder kein normales Sprachproblem $->$ Als Entscheidungsproblem mit Ja/Nein-Antwort formulieren:
+
+  Sind die ersten 10 Stellen der Dezimaldarstellung von $sqrt(2) = 1.414213562$?
+
+  *Als Sprache formuliert:* Sei $L$ die Sprache bestehend aus Zeichenketten der Form $n,x$ wobei n die Dezimaldarstellung einer natürlichen Zahl ist und $x$ die ersten 10 Stellen einer Dezimalzahl. Gilt $2, 1.414213562 in L$?
+]
+
+
+=== $epsilon$-Akzeptanzproblem für endliche Automaten
+*Problem:* Kan der endliche Automat $A$ das leere Wort akzeptieren?
+
+*Als Sprachproblem:* Ist die Sprache $L = {angle.l A angle.r | epsilon in L(A)}$ entscheidbar?
+
+*Entscheidungsalgorithmus:*
++ Wandle $A$ in einen DEA um
++ Ist der Startzustand ein Akzeptierzustand $q_0 in F$?
+
+=== Gleichheitsproblem für DEAs
+*Problem:* Akzeptieren die endlichen Automaten $A_1$ und $A_2$ die gleiche Sprache, $L(A_1) = L(A_2)$?
+
+*Sprachproblem:* Ist die Sprache $L = {angle.l A_1, A_2 angle.r | L(A_1) = L(A_2)}$ entscheidbar?
+
+*Entscheidungsalgorithmus:*
++ Wandle $A_1$ in einen minimalen Automaten $A'_1$ um
++ Wandle $A_2$ in einen minimalen Automaten $A'_2$ um
++ Ist $A'_1 = A'_2$?
+
+=== Akzeptanzproblem für DEAs
+*Problem:* Akzeptiert der endliche Automat $A$ das Wort $w$?
+
+*Spachproblem:* Ist die Sprache $L = {angle.l A, w angle.r | w in L(A)}$ entscheidbar?
+
+*Entscheidungsalgorithmus:*
++ Wandle A in einen DEA A' um
++ Simuliere A' mit Hilfe einer TM
++ Hält die Turing-Maschine im Zustand $q_"accept"$?
+
+=== Akzeptanzproblem für CFGs
+*Problem:* Kann das Wort $w$ aus der Grammatik $G$ produziert werden?
+
+*Als Sprachproblem:* Ist die Sprache $L = {angle.l G, w angle.r | w in L(G)}$ entscheidbar?
+
+*Entscheidungsalgorithmus:*
++ Kontrollieren, dass $angle.l G angle.r$ wirklich eine Grammatik beschreibt
++ Grammatik in Chomsky-Normalform bringen
++ Mit dem CYK-Algorithmus prüfen, ob $w$ aus $G$ produziert werden kann
+
+
+== Nicht entscheidbare Probleme
+
+#theorem[Alan Turing][$A_"TM"$ ist nicht entscheidbar.]
+#proof[Konstruiere aus dem Entscheider $H$ für $A_"TM"$ eine Maschine $D$ mit Input $angle.l M angle.r$.
++ Lasse $H$ auf Input $angle.l M, angle.l M angle.r angle.r$ laufen
++ Falls $H$ akzeptiert: $q_"reject"$
++ Falls $H$ verwirft: $q_"accept"$
+
+Wende jetzt $D$ auf $angle.l D angle.r$ an:\
+$D(angle.l D angle.r) "akzeptiert" <=> D "verwirft" angle.l D angle.r$ \
+$D(angle.l D angle.r) "verwirft" <=> D "akzeptiert" angle.l D angle.r$
+
+Widerspruch!
+]
+
+
+
+== Reduktion
+
+Berechenbare Abbildung $f: Sigma^* -> Sigma^*$ so, dass
+$ w in A <=> f(w) in B $
+Notation: $f: A <= B$, "$A$ leichter entscheidbar als $B$"
+
+Entscheidbarkeit: $B$ entscheidbar, $f : A <= B => A "entscheidbar"$
+
+#proof[$H$ ein Entscheider für $B$, dann ist $H circle.small f$ ein Entscheider für $A$.]
+
+Folgerung: $A$ nicht entscheidbar, $A <= B => B$ nicht entscheidbar.
+
+=== Reduktionsbeispiele
+In folgenden Beispielen ist $M$ eine Maschine, die ein Wort $w$ entweder akzeptiert oder verwirft. Wie wir bewiesen haben, ist es unmöglich, einen Entscheider für das Akzeptanzproblem $A_"TM"$ zu konstruieren.
+#example[Reduktion für das spezielle Halteproblem][
+  
+  Programm $S$:
+  + Führe $M$ auf $w$ aus
+  + $M$ hält in $q_"accept"$: akzeptiere
+  + $M$ hält in $q_"reject"$: Endlosschleife
+
+  Wenn $H$ ein Entscheider für $italic("HALT")epsilon_"TM"$ wäre, könnte man daraus einen Entscheider für $A_"TM"$ konstruieren:
+  + Konstruiere das Programm $S$
+  + Wende $H$ auf $angle.l S angle.r$ an
+]
+
+#example[Reduktion für das Leerheitsproblem $A_"TM" <= E_"TM"$][
+  Ist die Sprache $L(M)$ leer? $-> overline(E)_"TM"$ ist $L(M) eq.not emptyset$ 
+
+  Programm $S$ mit Input $u$:
+  + $M$ auf $w$ laufen lassen
+  + $M$ akzeptiert $w$: $q_"accept"$
+  + Andernfalls: $q_"reject"$
+
+  $ M "akzeptiert" w <=> S "akzeptiert" L(S) = Sigma^* != emptyset $
+
+  Wenn $H$ ein Entscheider für $E_"TM"$ wäre, könnte man daraus einen Entscheider für $A_"TM"$ konstruieren:
+  + Konstruiere das Programm $S$
+  + Wende $H$ auf $angle.l S angle.r$ an
+]
+
+#example[Regularitätsproblem $A_"TM" <= italic("REGULAR")_"TM"$][
+  Ist die Sprache $L(M)$ regulär?
+
+  Programm $S$ mit Input $u$:
+  + $u in.not {0^n 1^n | n >= 0} -> q_"reject"$
+  + $M$ auf $w$ laufen lassen
+  + $M$ akzeptiert $w$: $q_"accept"$
+  + $q_"reject"$
+
+  $ &M "akzeptiert" w &&<=> S "akzepiert" {0^n 1^n | n>= 0}, "nicht regulär" \
+  &M "akzeptiert" w "nicht" &&<=> S "akzeptiert" emptyset, "regulär" $
+
+  Wäre $H$ ein Entscheider für $italic("REGULAR"_"TM")$, könnte man daraus einen Entscheider für $A_"TM"$ konstruieren:
+  + Konstruiere das Programm $S$
+  + Wende $H$ auf $angle.l S angle.r$ an
+]
+
+
+=== Folgerungen aus P = NP
++ Für jedes Problem in NP gibt es einen polynomiellen Algorithmus
++ Es gibt keine "schwierigen" Probleme
++ Mit Moore's Law lässt sich jedes Problem "lösen"
++ Es gibt keine sichere Kryptographie
+
+=== Folgerungen aus P #sym.eq.not NP
++ NP-vollständige Probleme haben nicht skalierende Lösungen
++ Moore's Law hilft nicht in NP \\ P
+
+=== NP-vollständig
+Eine entscheidbare Sprache B heisst NP-vollständig, wenn sich jede Sprache A in NP polynomiell auf B reduzieren lässt:
+$ A scripts(<=)_P B, forall A in "NP" $
+
+Wenn ein Problem NP-vollständig ist:
+- Lösung braucht typischerweise exponentielle Zeit
+- Korrektheit der Lösung ist leicht (in polynomieller Zeit) zu prüfen
+- Andernfalls wären Tests schon exponentiell und somit in Software nicht sinnvoll
+
+Falls P #sym.eq.not NP, dann können NP-vollständige Probleme nicht in polynomieller Zeit gelöst werden.
+
+
+= Beispielprüfung
+#for i in range(16) {
+  image("./assets/exam" + str(i + 1) + ".png")
+}
 
