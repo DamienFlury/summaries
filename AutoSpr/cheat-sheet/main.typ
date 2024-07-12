@@ -1352,9 +1352,3 @@ Wenn ein Problem NP-vollständig ist:
 
 Falls P #sym.eq.not NP, dann können NP-vollständige Probleme nicht in polynomieller Zeit gelöst werden.
 
-
-= Beispielprüfung
-#for i in range(16) {
-  image("./assets/exam" + str(i + 1) + ".png")
-}
-

@@ -22,8 +22,9 @@
 #let given_question(given, question) = block(inset: (1em))[*Gegeben:* #given \ *Fragestellung:* #question]
 
 #page(align(center, [
-  #text(size: 30pt, [Automaten und Sprachen])
-  #v(1cm)
+  #text(size: 30pt, [Automaten und Sprachen]) 
+  #v(0.4cm)
+  Frühlingssemester 2024 \
   Damien Flury
 ]))
 #set page(numbering: "1")
@@ -1088,6 +1089,14 @@ Jedes Element in $U$ soll genau in einer der Teilmengen einer Familie $S$ vorkom
   - Unterfamilie $S_(j i)$ (so, dass die gleiche Vereinigung wie die Familie $S_j$ erzielt wird)
   - Bedingung $S_(j i) sect S_(j k) = 0$
   - Bedingung $union.big_(j=1)^n S_j = union.big_(i=1)^m S_(j i)$
+]
+
+#info[Unterschied Set-Covering, Exact-Cover, Set-Packing][
+  - In #smallcaps[Set-Covering] und #smallcaps[Set-Packing] kommt eine Zahl $k$ (z.B. maximale Anzahl Allergien) vor, 
+nicht aber in #smallcaps[Exact-Cover].
+  - In #smallcaps[Set-Covering] dürfen sich die Mengen schneiden, müssen aber auch alles abdecken. In #smallcaps[Set-Packing]
+dürfen sich die Mengen nicht schneiden, müssen aber auch nicht alles abdecken.
+  - In #smallcaps[Exact-Cover] dürfen sich die Mengen nicht schneiden, müssen alles abdecken, aber es kommt nicht auf ihre Anzahl an.
 ]
 
 === #smallcaps[3D-Matching]
