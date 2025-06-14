@@ -301,33 +301,3 @@ do {
 } while(!success)
 ```
 Starvation is a fairness problem and depends on scheduling.
-
-== Starvation avoidance
-- Enforce fairness
-
-= Correctness Criteria
-- No raceconditions
-- No deadlocks
-- No starvation
-
-= .NET
-An exception in a thread leads to the program to stop
-
-Threads can be made daemon threads by calling `t.IsBackground = true`.
-
-- `Monitor.Wait(obj)`
-- `Monitor.PulseAll(obj)`
-
-= Concurrency at scale
-Many Threads slow down the system:
-- Longer time intervals in between threads
-- Many thread starts/stops
-- Number limited
-- Memory:
-  - Stack for each thread
-  - Full register backup at swap
-
-== Tasks
-Tasks try to solve the problem of threads. They define potentially parallel
-work packages, they are purely passive objects describing the functionality.
-Tasks can run in parallel, but they don't have to.
