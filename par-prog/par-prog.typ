@@ -331,3 +331,91 @@ Many Threads slow down the system:
 Tasks try to solve the problem of threads. They define potentially parallel
 work packages, they are purely passive objects describing the functionality.
 Tasks can run in parallel, but they don't have to.
+
+\#worker-threads = \#processors + \#pending IO-calls
+
+=== Limitations
+Tasks must run to completion, before its worker thread is free to grab another task.
+
+Task must not wait for each other (except subtasks), otherwise potential deadlock (because current task in queue depends on the work of the next task in queue)
+
+
+=== Java
+```java
+var threadPool = new ForkJoinPool();
+Future<Integer> future = threadPool.submit(() -> {
+  int value = ...;
+  return value;
+});
+Integer result = future.get(); // blocking
+```
+
+`future.cancel(boolean mayInterruptIfRunning)`: Will fail, if task completed, cancelled or cannot be cancelled for some other reason 
+
+==== Recursive Task
+```java
+class CountTask extends RecursiveTask<Integer> {
+  @Override
+  protected Integer compute() {
+    var left = new CountTask(lower, middle);
+    var right = new CountTask(middle, upper);
+    left.fork();
+    right.fork();
+    return left.join() + right.join();
+  }
+}
+
+// ...
+var threadPool = new ForkJoinPool();
+int result = threadPool.invoke(new CountTask(2, N))
+```
+
+Default Pool: `ForkJoinPool.commonPool()`:
+`int result = new CountTask(2, N).invoke();`
+
+==== Avoid Over-Parallelizing
+```java
+protected Integer compute() {
+  if (upper - lower > THRESHOLD) {
+    // parallel count
+  } else {
+    // sequential count
+  }
+}
+```
+
+==== Work Stealing
+A free worker thread can steal scheduled tasks of another worker-thread.
+
+==== Special features
+- Fire and forget might not finish (Worker threads are daemon threads)
+- Automatic degree of parallelism
+
+=== .NET
+```cs
+Task<int> task = Task.Run(() => {
+  var left = Task.Run(() => Count(leftPart));
+  var right = Task.Run(() => Count(rightPart));
+  return left.Result + right.Result; // task.Result is blocking
+});
+```
+
+==== Parallel statements
+```cs
+Parallel.Invoke(
+  () => MergeSort(l, m),
+  () => MergeSort(m, r),
+);
+```
+==== Parallel Foreach
+```cs
+Parallel.ForEach(list, 
+  file => Convert(file)
+);
+```
+==== Parallel For
+```cs
+Parallel.For(0, array.Length,
+  i => DoComputation(array[i])
+);
+```
