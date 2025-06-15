@@ -624,4 +624,19 @@ void push(T value) {
   caption: [volatile semantics in .NET],
 ) <fig-volatile-dotnet>
 
+=== Memory Barrier
+To prevent reordering, we need to use `Thread.MemoryBarrier()`;
 
+```cs
+volatile bool a = false, b = false;
+
+// thread 1:
+a = true;
+Thread.MemoryBarrier();
+while(!b) {}
+
+// thread2:
+b = true;
+Thread.MemoryBarrier();
+while(!a) {}
+```
