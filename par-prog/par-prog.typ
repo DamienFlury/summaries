@@ -419,3 +419,209 @@ Parallel.For(0, array.Length,
   i => DoComputation(array[i])
 );
 ```
+
+==== Task Continuations
+```cd
+Task.Run(LongOperation)
+  .ContinueWith(task2)
+  .ContinueWith(task3)
+  .Wait();
+```
+
+==== Multi-Continuation
+```cd
+Task.WhenAll(task1, task2)
+  .ContinueWith(continutation);
+```
+
+=== Java
+```java
+CompletableFuture
+  .supplyAsync(() -> longOp())
+  .thenApplyAsync(v -> 2 * v)
+  .thenAcceptAsync(v -> println(v));
+```
+
+
+== GUIs
+Graphical user interfaces should run on their own UI thread.
+
+=== Premises
+- No long running operations in UI thread
+- No access to UI-elements by other threads
+  - .NET/Android: Exception
+  - Java Swing: Race Condition
+
+=== Java 
+```java
+button.addActionListener(event -> {
+  var url = textField.getText();
+  CompletableFuture.runAsync(() -> {
+    var text = download(url);
+    SwingUtilities.invokeLater(() -> {
+      textArea.setText(text);
+    })
+  })
+})
+```
+
+=== .NET
+```cs
+void buttonClick() {
+  var url = textBox.Text;
+  Task.Run(() => {
+    var text = Download(url);
+    Dispatcher.InvokeAsync(() => {
+      label.Content = text;
+    })
+  })
+}
+```
+Or simpler with async/await:
+```cs
+// ...
+var url = textBox.Text;
+var text = await DownloadAsync(url);
+label.Content = text;
+```
+An async method runs synchronously until it reaches its first `await`-expression $->$ Method is suspended until the awaited task is complete.
+All code right #emph[after] the `await`-expression runs asynchronously. All code up to including the first `await`-expression is called synchronously.
+At the `await`-expression, the thread returns to the caller, while the rest of the function is run asynchronously.
+
+With a UI thread as the caller thread, the model is a bit different. Here, the await call is run in a different TPL thread (normal), but after its completion,
+the rest of the function is passed back to the UI thread again (so we can update the UI afterwards).
+
+`void` should only be used in event handlers, only `Task` can be waited on. Async functions also have no support for `ref` and `out` parameters.
+
+```cs
+public async Task<bool> IsPrimeAsync(long number) {
+  return await Task.Run(() => {
+    for (long i = 2; i * i <= number; i++) {
+      if (number % 2 == 0) { return false; }
+    }
+    return true;
+  });
+}
+```
+
+=== Async/Await thoughts 
+- One Async method, two scenarios (non UI thread vs. UI thread)
+- Viral effect: Caller must also be async
+  - Complicates debugging
+  - Runtime overhead, code segmentation
+- Should be orthogonal:
+  - Caller should decide, not callee
+  - Many libraries offer asynchronous and synchronous version of the same functionality
+
+
+= Memory model
+== Causes of problems
+- Weak consistency: Memory in different order by different threads (except when synchronized and at memory barriers)
+- Optimizations by compiler, runtime and CPU: Instructions are reordered or eliminated
+
+$->$ No sequential consistency.
+
+== Java guarantees
+=== Atomicity
+A single read/write is atomic (primitives up to 32 bit, object references). Long and double are only atomic with the #emph[volatile] keyword!
+
+=== Visibility
+Atomicity does not imply visibility! One thread may not see updates of another thread at all (or possibly much later).
+```java
+// thread 1:
+while(doRun) { // this possibly never stops.
+}
+// thread 2:
+doRun = false;
+```
+
+Guaranteed visible between threads are:
+- Lock release & acquire:
+  - Memory writes before release are visible after acquire
+- Volatile variable
+  - Memory writes up to including the volatile variable are visible when reading the variable
+- Thread/Task-Start and join
+  - Start: input to thread, Join: thread result
+- Initialization of final variables
+  - Visible after completion of constructor
+
+
+#figure(
+  image("assets/visibility-unlock-lock.png", width: 80%),
+  caption: [Visibility lock $->$ unlock]
+) <fig-visibility-unlock-lock>
+
+
+```java
+private volatile boolean doRun = true;
+// thread 1:
+while(doRun) { // this possibly never stops.
+}
+// thread 2:
+doRun = false;
+```
+
+Visibility also implies partial order.
+
+```java
+volatile boolean a = false, b = false;
+
+// thread 1:
+a = true;
+while(!b) {}
+
+// thread 2:
+b = true;
+while(!b) {}
+```
+This code works, no reordering is done because of `volatile` $->$ total order
+
+=== Atomic operations
+getAndSet(): Returns old value, writes new value.
+```java
+public class SpinLock {
+  private final AtomicBoolean locked = new AtomicBoolean(false);
+  public void acquire() {
+    while(locked.getAndSet(true)) {}
+  }
+  public void release() {
+    locked.set(false);
+  }
+}
+```
+
+==== Compare and set
+`boolean compareAndSet(boolean expect, boolean update)`
+- Sets update only if read value is as expected (atomic)
+- Returns true if successful
+
+
+==== Lock free stack (Treiber 1986)
+```java
+AtomicReference<Node<T>> tope = new AtomicReference<>();
+void push(T value) {
+  var newNode = new Node<T>(value);
+  Node<T> current;
+  do {
+    current = top.get();
+    newNode.setNext(current);
+  } while(!top.compareAndSet(current, newNode));
+}
+```
+
+
+== .NET
+- Volatile Write: Release semantics:
+  - Preceding memory accesses are not moved below
+  - Subsequent memory accesses can be moved above
+- Volatile Read: Acquire semantics:
+  - Subsequent memory accesses are not moved above
+  - Preceding memory accesses can be moved below
+
+
+#figure(
+  image("assets/volatile-dotnet.png", width: 80%),
+  caption: [volatile semantics in .NET],
+) <fig-volatile-dotnet>
+
+
