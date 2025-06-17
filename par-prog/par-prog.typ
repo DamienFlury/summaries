@@ -640,3 +640,52 @@ b = true;
 Thread.MemoryBarrier();
 while(!a) {}
 ```
+
+= Cluster Programming
+- Highest possible parallel acceleration
+- Lots of CPU cores (instead of GPU cores)
+- GPU often limiting because of SIMD
+- Nodes close to each other
+- Fast interconnect
+
+== Programming models
+=== SPMD
+- Single program, multiple data
+- high level programming model
+- Single Program: All tasks execute their copy of the same program simultaneously.
+- Multiple Data: All tasks may use different data
+- Most commonly used for multi-node clusters
+
+=== MPMD
+- Multiple Program: Tasks may execute different programs simultaneously. Can be threads, message passing, data parallel or hybrid.
+
+== Memory Model: Hybrid Model
+- Most modern supercomputers use a hybrid architecture (shared + distributed)
+- All processors can share memory
+- Can also request data from other computers (programmatically)
+
+== Message Passing Interface (MPI)
+- Distributed programming model
+- Industry standard (C, Fortran, .NET, Java, etc.)
+- Process: Program + Data
+- Multiple processes, working on the same task
+- Each process only has direct access to its own data
+- Usually one process per core
+
+== Message
+- Id of sender
+- Id of receiver
+- Data type to be sent
+- Number of data items
+- Data itself
+- Message type identifier
+
+
+#figure(
+  image("assets/mpi-scatter-bcast.png", width: 80%),
+  caption: [Scatter/Gather vs Broadcast],
+) <fig-mpi-scatter-bcast>
+
+// start p.19
+
+
