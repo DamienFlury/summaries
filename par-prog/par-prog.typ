@@ -293,6 +293,7 @@ a = true;
 - Linear lock hierarchy
 - Coarse granular locks:
   - Only one lock holder; e.g. entire bank is blocked while lock holder does work
+- Partial order to the acquisition of mutexes: Any pair { M1, M2 } are always locked in the same order.
 
 = Starvation
 ```java
@@ -686,6 +687,64 @@ while(!a) {}
   caption: [Scatter/Gather vs Broadcast],
 ) <fig-mpi-scatter-bcast>
 
-// start p.19
+=== MPI example
+```c
+#include <stdio.h>
+#include "mpi.h"
+
+int main(int argc, char** argv) {
+  MPI_Init(&argc, &argv); // Passes arguments to other processes via MPI middleware
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  char name[MPI_MAX_PROCESSOR_NAME];
+  int len;
+  MPI_Get_processor_name(name, &len); // Gets the name of the processor (not process), e.g. Node12
+  printf("MPI Process %i, name: %s", rank, name);
+  MPI_Finalize();
+}
+```
+
+==== Compiling and running
+```bash
+mpicc HelloCluster.c
+mpiexec -n 24 a.out # or -c 24 or -np 24
+```
+
+=== Send/receive
+```c
+MPI_Send(void* data,
+  int count,
+  MPI_Datatype datatype,
+  int destination,
+  int tag,
+  MPI_Comm communicator);
+
+MPI_Recv(void* data,
+  int count,
+  MPI_Datatype datatype,
+  int source,
+  int tag,
+  MPI_Comm communicator,
+  MPI_Status* status)
+```
+
+=== Barrier
+`MPI_Barrier(MPI_COMM_WORLD)` blocks until all processes in the communicator
+have reached the barrier.
 
 
+=== Reduce
+```c
+MPI_Reduce(&value, &total, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+```
+
+=== Allreduce
+```c
+MPI_Allreduce(&value, &total, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+```
+Allreduce distributes the aggregated value after reducing to all nodes. Therefore, one less argument (the node which collects the value).
+
+=== Gather
+```c
+MPI_Gather(&input_value, 1, MPI_INT, &output_array, 1, MPI_INT, 0, MPI_COMM_WORLD);
+```
