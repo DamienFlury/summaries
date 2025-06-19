@@ -13,9 +13,7 @@
     stroke: yellow.darken(40%)
   ), radius: 2pt, width: auto, [#content])
 
-#set par(justify: true)
-
-// #set table(stroke: none)
+#set par(justify: true, spacing: 0.65em, first-line-indent: 1em)
 
 #info(header:[Moore's Law], [Transistor count doubles every two years.])
 
@@ -799,4 +797,198 @@ The JVW often performs Auto-Vectorisation!
 - No shared memory between nodes
 - But: Shared memory for cores inside a node
 
+OpenMP starts as a single initial/master thread. A pragma is used
+to spawn multiple threads (fork):
+```c
+pragma omp parallel
+{
+  const int np = omp_get_num_threads();
+  const int thread_num = omp_get_thread_num();
+} // here, the threads synchronize and terminate (join)
+```
 
+Number of threads can be set via `omp_set_num_threads()`, through the
+env-variable `OMP_NUM_THREADS`, and they are numbered from 0 (master) to n - 1.
+
+=== Parallel for loop
+```c
+#pragma omp parallel for
+for (int i = 0; i < n; i++) {
+  printf("Iteration %d, thread %d\n", i, omp_get_thread_num());
+}
+```
+- Launches multiple threads
+- Each thread handles one iteration at a time
+- Oversubscription (n > omp_get_max_threads()) is handled by OpenMP
+
+=== Memory model
+```c
+int A, B;
+#pragma omp parallel for private (A) shared (B)
+  for (...)
+```
+Or (for private):
+```c
+#pragma omp parallel
+int A;
+#pragma omp for
+for (...)
+```
+Each thread gets a private copy of variable A, but all threads access the same
+memory location for variable B.
+
+After the loop, threads terminate and A will be cleared from memory.
+
+==== Private vs firstprivate
+Using Firstprivate(x) x is initialized for each thread with the value of x before the parallel part.
+Using private(x), x is initialized in the threads with 0 (default value).
+
+Loop variables are private by default.
+
+==== Race conditions with shared variables
+Of course, race conditions can still happen:
+```c
+const int n = 300;
+int sum = 0;
+#pragma omp parallel for
+for (int i = 0; i < n; ++i) {
+  sum += i;
+}
+```
+Here, it's not guaranteed that the sum is added correctly, data races likely happen.
+
+We can avoid race conditions with a Mutex:
+```c
+const int n = 300;
+int sum = 0;
+#pragma omp parallel for
+for (int i = 0; i < n; ++i)
+#pragma omp critical
+{
+  sum += i;
+}
+```
+However, this is:
+- Extremely slow due to serialization
+- Slower than a single thread
+- For this code overkill
+- Mutex is heavy weight too $->$ large performance overhead
+
+==== Lightweight Mutex
+```c
+const int n = 300;
+int sum = 0;
+#pragma omp parallel for
+for (int i = 0; i < n; ++i)
+#pragma omp atomic
+{
+  sum += i;
+}
+```
+However atomic only works with simple expressions:
+- read
+- write
+- update (e.g. `x++` or `x = x + y`)
+- capture (e.g. `v = x++`)
+
+==== Reduction across threads
+```c
+int sum = 0;
+#pragma omp parallel for reduction (+: sum)
+for (int i = 0; i < n; i++) {
+  sum += i;
+}
+```
+This returns the correct answer without synchronizing the code.
+The trick here is, that each thread calculates a partial sum. The partial sums
+are then later summed up atomically.
+
+=== Hybrid OpenMP + MPI
+```c
+int numprocs, rank;
+int iam = 0, np = 1;
+MPI_Init(&argc, &argv);
+MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#pragma omp parallel default(shared)
+private(iam, np) {
+  np = omp_get_num_threads();
+  iam = omp_get_thread_num();
+  printf("Hello from thread %d out of %d from
+  process %d out of %d\n"
+  , iam, np, rank,
+  numprocs,);
+}
+MPI_Finalize();
+```
+
+= Performance scaling
+== Writing fast parallel programs is hard
+- Finding parallelism
+- How big should the parallel part be (granularity)
+- Moving data costs a lot
+- Load balancing
+- Coordination + Synchronization
+- Performance debugging
+
+== Scalability
+- Ability to handle more work as the size of the computer/program grows
+- Widely used to describe the ability of hardware and software to deliver greater computational power when the number of resources is increased 
+
+=== Scalability Testing
+- Scalability Testing = measuring the ability of an application to perform
+  well/better with varying problem sizes and numbers of processors
+- Impractical to test using the full problem size and number of processors right from the start
+  - Problem size and number of processors is scaled down at first
+  - The required resources for the full run is estimated
+- Strong scaling vs weak scaling
+
+
+== Strong scaling
+- Number of processors is increased while problem size remains constant
+  - Reduced workload per processor
+  - Individual workload must be kept high to keep processors occupied
+- Used for long running CPU bound applications
+
+== Amdahls Law (strong scaling)
+#info(header: [Amdahls law], [The speedup is limited by the fraction of the serial part of the
+software that is not amenable to parallelization.])
+- Justification for programs that take long to run (CPU bound)
+- Goal: Find sweet spot that allows computation to complete in a reasonable amount of time, while not wasting too many cycles due to parallel overhead
+- *Harder to achieve good strong-scaling at larger process counts since the communication overhead for most algorithms increase in proportion to the processors used.*
+
+=== Mathematical definiton of Amdahls law
+- $T =$ total time
+- $p =$ part that can be parallelized
+- $T = p T + (1 - p) T$
+- Using N processors:
+  - $T_N = (p T)/N + (1 - p) T$
+- Serialized part $s = 1 - p$
+- $"Speedup" = T / ((p T) / N + (1 - p) T) = 1 / (s + p/n)$
+- $"Efficiency" = T / (N T_N)$
+
+
+#figure(
+  image("assets/speedup.png", width: 80%),
+  caption: [Speedup relative to the parallel portion of a program],
+) <fig-speedup>
+
+Amdahls law ignores the *parallel overhead*:
+- Task startup time
+- Interprocess interactions:
+  - Communication/data movement
+  - Synchronization
+- Idling due to load imbalance/synchronization
+- Excess redundant computation
+- Software overhead (language, libraries, OS, etc.)
+- Task termination time
+
+== Gustafsons Law
+In practice, the sizes of problems scale/change with the amount of available resources.
+A reasonable choice is to use small amounts of resources for small problems and
+large amount of resources for big problems.
+
+- Weak scaling mostly used for large memory bound applications
+$
+"Speedup" = s + p N
+$
