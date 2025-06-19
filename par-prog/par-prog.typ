@@ -748,3 +748,55 @@ Allreduce distributes the aggregated value after reducing to all nodes. Therefor
 ```c
 MPI_Gather(&input_value, 1, MPI_INT, &output_array, 1, MPI_INT, 0, MPI_COMM_WORLD);
 ```
+
+=== Programming Models
+#table(columns: 3, 
+table.header([], [*Single Instruction*], [*Multiple Instruction*]),
+[*Single Data*], [SISD, Uniprocessor (single core)], [MISD, FPGA, Google TPU],
+[*Multiple Data*], [SIMD, Vector Computing (GPU), Vector extension (MMX, SSE2, etc.)], [MIMD, multi core, multi processors])
+
+=== Why SIMD?
+- Many algorithms for media (e.g. black & white conversion, FFT, etc.)
+- Careful with flow-control (if, switch, etc.)
+
+=== SIMD Vector extensions
+Data Types and instructions for the parallel computing on short vectors (64 up to 512 bits). Easy to implement on chip.
+
+=== Java Vector API
+==== Features
+- `Add()`, `Sub()`, `Div()`, `Mul()`
+- `And()`, `Or()`, `Not()`
+- Compare
+- Casting
+- Shuffle (important for encryption algorithm (rot13))
+==== Info
+- Platform agnostic
+- Compiled to vector hardware instructions, if supported
+  - Fallback: scalar code
+
+```java
+private static final VectorSpecies<Integer> SPECIES = IntVector.SPECIES_PREFERRED;
+
+public static int[] vectorComputation(int[] a, int[] b) {
+  var c = new int[a.length];
+  int upperBound = SPECIES.loopBound(a.length);
+  int i = 0;
+  for(; i < upperBound; i += SPECIES.length()) {
+    var va = IntVector.fromArray(SPECIES, a, i);
+    var vb = IntVector.fromArray(SPECIES, b, i);
+    var vc = va.add(vb);
+    vc.intoArray(c, i);
+  }
+  for (; i < a.length; i++) { // Cleanup loop
+    c[i] = a[i] + b[i];
+  }
+}
+```
+The JVW often performs Auto-Vectorisation!
+
+== OpenMP
+=== Why?
+- No shared memory between nodes
+- But: Shared memory for cores inside a node
+
+
