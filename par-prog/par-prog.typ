@@ -992,3 +992,132 @@ large amount of resources for big problems.
 $
 "Speedup" = s + p N
 $
+
+= GPU
+- Graphics Processing Unit
+- Co-processor of the system
+- Specialized electronic circuit designed to manipulate and alter memory to accelerate the creation of images in a frame buffer
+- Efficient at manipulating computer graphics and image processing
+- Parallel structure makes them more efficient than general purpose CPUs for algorithms that process large blocks of data in parallel.
+
+== CPUs vs GPUs
+- CPUs offer few cores
+  - Very fast (in general)
+  - Few but fast
+- GPUs offer very large number of cores
+  - e.g. 3584, 5760 cores
+  - Very specific slower processors
+  - Many but slow
+
+== Latency vs Throughput
+=== Pipelining
+Washing machine takes 30 minutes, drawer takes 60 minutes.
+
+The first laundry therefore takes 90 minutes, *but every subsequent laundry takes 120 minutes* (not 60)!
+Every 60 minutes a laundry is finished.
+
+- Latency: How long does it take to execute a task from start to end
+- Throughput: Number of tasks completed per second or per minute: 1/60 laundry per minute
+
+- Transferring data from memory to device: 20ms
+- Executing instructions on device: 60ms
+
+- Latency = Time required to finish one operation = 80ms, resp. 120ms
+- Throughput: Every 60ms an operation is finished. Throughput = 1/60 operations/ms
+
+There is a tradeoff between latency and throughput. A high throughput by pipelining processing, the latency most often increases too.
+Rate of processing is determined by the slowest step.
+
+If the compute time is longer $->$ function is compute limited/compute bound. If the memory time is longer $->$ memory limited/memory bound.
+
+If an operation is memory bound, tweaking parameters to more efficiently use CPU is ineffective.
+
+== Operational intensity
+$
+"operations per second" / "bytes per second" = "FLOPs" / "Bytes"
+$
+
+If the IO is high, we have a more efficient utilization of modern parallel processors.
+
+== Roofline model
+
+#figure(
+  image("assets/roofline-model.png", width: 80%),
+  caption: [Roofline model],
+) <fig-roofline-model>
+=== Example
+- Peak floating point performance of 17.6 GFlops/s
+- Peak memory bandwith of 15 GB/s
+
+$"Attainable Perf" = min("Peak Perf", "Peak Memory Bandwidth" times "Operational Intensity")$
+
+#figure(
+  image("assets/roofline-model-example.png", width: 80%),
+  caption: [Roofline model example],
+) <fig-roofline-model-example>
+
+== GPUs
+GPUs use more transistors. Streaming multiprocessors composed by cores. All cores perform the same instructions but on different data $->$ SIMD.
+
+SIMD is essentially vector parallelism.
+
+#table(columns: 2, [*GPU*], [*CPU*],
+[Video Gaming], [General purpose],
+[Extremely high data parallel], [Low data parallelism],
+[Simple but many cores], [Few but powerful cores],
+[Small caches per core], [Large caches in chip], 
+[Aim: high throughput], [Aim: low latency per thread])
+
+== NUMA Model
+- NUMA: Non-Uniform Memory Access
+- No shared main memory between CPU and GPU
+  - Explicit transfer
+- Different instruction set/architecture
+  - Compile and design code for GPU
+
+== CUDA
+A typical CUDA application has CPU and GPU code and is 'C' with extensions. It contains following code:
+- Allocate GPU memory: `cudaMalloc`
+- Copy data from CPU to GPU: `cudaMemcpy`
+- Launch kernel on GPU to process data
+- Copy data back to CPU: `cudaMemcpy`
+- Memory is freed : `cudaFree`
+
+```c
+__global__
+void VectorAddKernel(float *A, float *B, float *C) { // GPU (Device)
+  int i = threadIdx.x;
+  C[i] = A[i] + B[i];
+}
+
+int CudaVectorAdd(float* h_A, float* h_B, float* h_C, int N) { // CPU (HOST)
+  size_t size = N * sizeof(float);
+  float *d_A, *d_B, *d_C;
+  
+  cudaMalloc(&d_A, size);
+  cudaMalloc(&d_B, size);
+  cudaMalloc(&d_C, size);
+
+  cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice);
+  cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice);
+
+  VectorAddKernel<<<1, N>>>(A, B, C);
+
+  cudaMemcpy(h_C, d_C, size, cudaMemcpyDeviceToHost);
+
+  cudaFree(d_A);
+  cudaFree(d_B);
+  cudaFree(d_C);
+}
+
+int main() {
+  CudaVectorAdd(a, b, c);
+}
+```
+
+We talk about SIMT: Single Instruction Multiple Threads.
+
+#figure(
+  image("assets/cuda-compilation.png", width: 80%),
+  caption: [Cuda compilation],
+) <fig-cuda-compilation>
