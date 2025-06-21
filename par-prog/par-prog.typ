@@ -1121,3 +1121,156 @@ We talk about SIMT: Single Instruction Multiple Threads.
   image("assets/cuda-compilation.png", width: 80%),
   caption: [Cuda compilation],
 ) <fig-cuda-compilation>
+
+== API
+
+#figure(
+  image("assets/cuda-api.png", width: 80%),
+  caption: [CUDA Programming Interface],
+) <fig-cuda-api>
+
+== CUDA Execution model
+- Thread = Virtual Scalar Processor
+- Block = Virtual Multiprocessor
+- Blocks must be independent
+- Kernel composed of blocks
+- Each block contains (usually) 1024 threads, each thread has an ID
+- The CUDA runtime can choose how to allocate blocks among streaming
+  multiprocessors (SM). For large GPUs each SM gets a block
+- Threads & Blocks must complete
+- All threads in a block run on the same SM at the same time
+- Threads of a block execute concurrently on one multiprocessor
+- Multiple threads can execute concurrently on one multiprocessor
+
+
+#figure(
+  image("assets/cuda-architecture.png", width: 80%),
+  caption: [CUDA Architecture],
+) <fig-cuda-architecture>
+
+```c
+dim3 gridSize(3, 2, 1);
+dim3 blockSize(4, 2, 1);
+VectorAddKernel<<<gridSize, blockSize>>>(...);
+```
+Product of blockSize cannot be greater than 1024! e.g. 33 x 32 x 1 is not
+allowed an results in an error.
+
+Max x and y dimensions are 1024, max z dimension is 64.
+
+== Data partitioning
+- `threadIdx.x`: Thread number in block
+- `blockIdx.x`: Block number
+- `blockDim.x`: Block size
+
+```c
+__global__
+void VectorAddKernel(float *A, float *B, float *C) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < N) {
+    C[i] = A[i] + B[i];
+  }
+}
+// ...
+N = 4097;
+int blockSize = 1024;
+int gridSize = (N + blockSize - 1)/blockSize; // ceiling
+VectorAddKernel<<<gridSize, blockSize>>>(A, B, C, N);
+```
+
+== Error handling
+```c
+cudaError error;
+error = cudaMalloc(&d_A, size);
+if (error != cudaSuccess) {
+  char * errStr = cudaGetErrorString(error);
+}
+```
+
+== Unified Memory
+Unified memory allows automatic memory transfer from CPU to GPU:
+```c
+A = (float *)malloc(size);
+B = (float *)malloc(size);
+C = (float *)malloc(size);
+
+vectorAdd(A, B, C, N);
+
+free(A);
+free(B);
+free(C);
+
+// ...
+cudaMallocManaged(&A, size);
+cudaMallocManaged(&B, size);
+cudaMallocManaged(&C, size);
+
+VectorAddKernel<<<..., ...>>>(A, B, C, N);
+cudaDeviceSynchronize(); // Wait for GPU to finish
+
+cudaFree(A);
+cudaFree(B);
+cudaFree(C);
+```
+
+== VectorAdd on a multi dimensional grid
+```c
+__global__
+void VectorAddKernel(float *A, float *B, float *C) {
+  int col = blockIdx.x * blockDim.x + threadIdx.x;
+  int row = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (row < A_ROWS && col < A_COLS) {
+    C[row * A_COLS + col] = A[row * A_COLS + col] + B[row * A_COLS + col];
+  }
+}
+
+const int A_COLS, B_COLS, C_COLS = 6;
+const int A_ROWS, B_ROWS, C_ROWS = 4;
+dim3 block = (2,2);
+dim3 grid = (3,2);
+VectorAddKernel<<<grid, block>>>(A, B, C);
+```
+== Warps
+Blocks are allocated internally in warps of 32 threads each.
+So a block may have 32 warps at max. All threads in a warp execute the same
+instruction. The SM executes instructions of one branch (same instruction) in parallel, the other branches have to wait. This can be a performance problem.
+
+```c
+if (threadIdx.x > 1) {...} else {...} // bad
+if (threadIdx.x / 32 > 1) {...} else {...} // good
+```
+
+The global memory of CUDA devices is implemented using DRAMs.
+DRAMs parallelize data access, and if data is accessed, different data close to
+that single entry are accessed too really fast. If we can achieve consecutive
+accesses to data close to each other, we can gain a significant speedup.
+$->$ Memory coalescing.
+This is called a memory burst.
+
+Therefore it's crucial, how we align the items in memory and where we run the
+threads (row vs column-first algorithm).
+
+We should always try to redesign access as follows:
+```c
+data[(expression without threadIdx.x) + threadIdx.x]
+```
+So we go linearly through the data.
+
+=== Register spilling
+Variables in a thread are usually stored in registers. If we have too many variables for the registers to hold, the variables are put on the global memory $->$ Register spilling (slow).
+
+
+#figure(
+  image("assets/cuda-memory-model.png", width: 80%),
+  caption: [CUDA memory model],
+) <fig-cuda-memory-model>
+
+We can save variables in shared memory with:
+```c
+__shared__ float x;
+```
+Only 48 KB. So for example in the matrix multiplication, it makes sense to
+store chunks of data in the shared memory (tiled matrix multiplication).
+
+In tiled matrix multiplication we need `__syncthreads()` to avoid data races.
