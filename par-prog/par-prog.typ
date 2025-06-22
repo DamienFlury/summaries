@@ -1,6 +1,6 @@
 #import "@preview/colorful-boxes:1.4.3": *
 
-#set page("a4", flipped: true, columns: 3, margin: 1em, numbering: "1")
+#set page("a4", flipped: true, margin: 1em)
 #let alert(fill: blue, header: [], content) = block(fill: fill, radius: 2pt, width: 100%, [
   #pad(x: .5em, top: 0.5em, text(weight: "bold", [#header]))
   #v(-.8em)
@@ -15,19 +15,13 @@
 
 #set par(justify: true, spacing: 0.65em, first-line-indent: 1em)
 
+#set text(size: 7pt)
+#show heading: set block(above: 0.5em, below: 0.5em)
+#show heading: set text(size: 8pt)
+#set par(leading: 0.5em)
 
-#table(columns: 2, table.header([*Parallelism*], [*Concurrency* (Nebenläufigkeit)]),
-[Decomposition of a program into several sub programs, which run simultaneously on several processors $=>$ Faster Programs],
-[Interleaved (time shared) execution that accesses shared resources $=>$ Simpler programs.
-Sometimes with time slicing (but not necessarily).])
 
-#table(columns: 2, table.header([*Process*], [*Thread*]),
-[Own address space.],
-[Same address space, separate stack and registers.])
-
-Multiple threads can write in the same memory locations $=>$ Needs explicit synchronization.
-
-/ Multiplexing: Interleaved execution by using context switching.
+#columns(5, gutter: 0.8em, [
 
 = Context switching
 - Synchron: Waits for condition
@@ -36,22 +30,11 @@ Multiple threads can write in the same memory locations $=>$ Needs explicit sync
   - After a defined time, the thread should release the processor
   - Prevents a thread from permanently occupying the processor
 
-= Multitasking (scheduling)
-- Cooperative (rarely used nowadays)
-  - Threads must explicitly initiate context switches at intervals
-- Preemptive (nowadays standard)
-  - Scheduler interrupts the running thread asynchronously via timer interrupt
-  - Time sliced scheduling: Each thread has the processor for maximum time interval
-
 = Thread states
 Running, Waiting, Ready
 
 = JVM
-- `System.exit() / Runtime.exit()`: Uncontrolled stop of all threads
-- Threads realized by `Thread`-class and `Runnable`-interface
-  - `void run()` can be overridden for custom behaviour
 - Scheduling of threads handled by the OS
-- Allows setting priorities to threads $->$ still managed by OS
 - The current thread can be accessed with `Thread.currentThread()`
 ```java
 var t1 = new Thread(() -> { System.out.println("Hi from t1"); })
@@ -70,11 +53,6 @@ stops when t2 calls `join`, `wait` or `sleep`.
 - Terminated
 - Timed_Waiting: `sleep(timeout), join(timeout)`
 - Waiting: `join()`
-
-#figure(
-  image("assets/thread-states.png", width: 80%),
-  caption: [Thread states],
-) <fig-thread-states>
 
 If `wait`, `notify` and `notifyAll` are called outside synchronized blocks: IllegalMonitorStateException.
 
@@ -110,15 +88,6 @@ rwLock.writeLock().unlock();
 
 = Race Conditions
 == Race condition without Data Race
-```java
-account.setBalance(account.getBalance() + 100);
-```
-This can still lead to lost updates, even when account is synchronized, due to non atomic increment.
-
-== Race Conditions and Data Races
-#table(columns: 3, table.header([], [*Race Condition*], [*No Race Condition*]),
-[*Data Race*], [Erroneous behaviour], [Program works correctly, but formally incorrect],
-[*No Data Race*], [Erroneous behaviour], [Correct behaviour])
 
 Synchronization can be skipped, if:
 - Immutability is used/Read-Only Objects
@@ -128,11 +97,6 @@ Synchronization can be skipped, if:
 - Thread Confinement: Object belongs to only one thread
 - Object Confinement: Object is encapsulated in already synchronized objects
 
-== Threadsafe
-A datatype/method is #emph[threadsafe], if it behaves correctly when used from
-multiple threads, without requiring additional coordination from the caller.
-Therefore a threadsafe callee cannot put any synchronization requirements on the caller.
-
 == Threadsafe Java collections
 Old Java-Collections like `Vector`, `Stack`, `Hashtable` are threadsafe. Modern
 collections (`HashSet`, `TreeSet`, `ArrayList`, `LinkedList`, `HashMap`,
@@ -140,22 +104,6 @@ collections (`HashSet`, `TreeSet`, `ArrayList`, `LinkedList`, `HashMap`,
 `ConcurrentLinkedQueue`, `CopyOnWriteArrayList`.
 
 Concurrent collections have strong concurrency guarantees, but have weakly conisistent iterators! There's no `ConcurrentModificationException` and concurrent updates are likely not seen by others.
-
-= Deadlocks
-== Nested Locks
-```java
-synchronized(listA) {
-  synchronized(listB) {
-    listB.addAll(A);
-  }
-}
-
-synchronized(listB) {
-  synchronized(listA) {
-    listA.addAll(B);
-  }
-}
-```
 
 == Deadlock avoidance
 - Linear lock hierarchy
@@ -169,10 +117,6 @@ do {
   success = account.withdraw(100);
 } while(!success)
 ```
-Starvation is a fairness problem and depends on scheduling.
-
-== Starvation avoidance
-- Enforce fairness
 
 = Correctness Criteria
 - No raceconditions
@@ -233,7 +177,6 @@ class CountTask extends RecursiveTask<Integer> {
     return left.join() + right.join();
   }
 }
-
 // ...
 var threadPool = new ForkJoinPool();
 int result = threadPool.invoke(new CountTask(2, N))
@@ -310,14 +253,6 @@ CompletableFuture
 
 
 == GUIs
-Graphical user interfaces should run on their own UI thread.
-
-=== Premises
-- No long running operations in UI thread
-- No access to UI-elements by other threads
-  - .NET/Android: Exception
-  - Java Swing: Race Condition
-
 === Java 
 ```java
 button.addActionListener(event -> {
@@ -351,27 +286,8 @@ label.Content = text;
 ```
 If the thread is an UI thread, the part after the `await` instruction is guaranteed to be ran by the UI thread (instead of the separate Task where the await is ran).
 
-=== Async/Await thoughts 
-- One Async method, two scenarios (non UI thread vs. UI thread)
-- Viral effect: Caller must also be async
-  - Complicates debugging
-  - Runtime overhead, code segmentation
-- Should be orthogonal:
-  - Caller should decide, not callee
-  - Many libraries offer asynchronous and synchronous version of the same functionality
-
-
 = Memory model
-== Causes of problems
-- Weak consistency: Memory in different order by different threads (except when synchronized and at memory barriers)
-
-$->$ No sequential consistency.
-
-== Java guarantees
-=== Atomicity
-A single read/write is atomic (primitives up to 32 bit, object references). Long and double are only atomic with the #emph[volatile] keyword!
-
-=== Visibility
+== Visibility
 Atomicity does not imply visibility! One thread may not see updates of another thread at all (or possibly much later).
 Guaranteed visible between threads are:
 - Lock release & acquire:
@@ -453,12 +369,10 @@ To prevent reordering, we need to use `Thread.MemoryBarrier()`;
 
 ```cs
 volatile bool a = false, b = false;
-
 // thread 1:
 a = true;
 Thread.MemoryBarrier();
 while(!b) {}
-
 // thread2:
 b = true;
 Thread.MemoryBarrier();
@@ -502,12 +416,6 @@ while(!a) {}
 - Data itself
 - Message type identifier
 
-
-#figure(
-  image("assets/mpi-scatter-bcast.png", width: 80%),
-  caption: [Scatter/Gather vs Broadcast],
-) <fig-mpi-scatter-bcast>
-
 ==== Compiling and running
 ```bash
 mpicc HelloCluster.c
@@ -516,52 +424,24 @@ mpiexec -n 24 a.out # or -c 24 or -np 24
 
 === Send/receive
 ```c
-MPI_Send(void* data,
-  int count,
-  MPI_Datatype datatype,
-  int destination,
-  int tag,
-  MPI_Comm communicator);
-
-MPI_Recv(void* data,
-  int count,
-  MPI_Datatype datatype,
-  int source,
-  int tag,
-  MPI_Comm communicator,
-  MPI_Status* status)
+MPI_Send(void* data, int count, MPI_Datatype datatype, int destination, int tag, MPI_Comm communicator);
+MPI_Recv(void* data, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm communicator, MPI_Status* status)
 ```
 
-=== Barrier
 `MPI_Barrier(MPI_COMM_WORLD)` blocks until all processes in the communicator
 have reached the barrier.
 
-
-=== Reduce
 ```c
 MPI_Reduce(&value, &total, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 ```
 
-=== Allreduce
 ```c
 MPI_Allreduce(&value, &total, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 ```
-Allreduce distributes the aggregated value after reducing to all nodes. Therefore, one less argument (the node which collects the value).
-
 === Gather
 ```c
 MPI_Gather(&input_value, 1, MPI_INT, &output_array, 1, MPI_INT, 0, MPI_COMM_WORLD);
 ```
-
-=== Programming Models
-#table(columns: 3, 
-table.header([], [*Single Instruction*], [*Multiple Instruction*]),
-[*Single Data*], [SISD, Uniprocessor (single core)], [MISD, FPGA, Google TPU],
-[*Multiple Data*], [SIMD, Vector Computing (GPU), Vector extension (MMX, SSE2, etc.)], [MIMD, multi core, multi processors])
-
-=== Why SIMD?
-- Many algorithms for media (e.g. black & white conversion, FFT, etc.)
-- Careful with flow-control (if, switch, etc.)
 
 === SIMD Vector extensions
 Data Types and instructions for the parallel computing on short vectors (64 up to 512 bits). Easy to implement on chip.
@@ -596,15 +476,7 @@ public static int[] vectorComputation(int[] a, int[] b) {
   }
 }
 ```
-The JVW often performs Auto-Vectorisation!
-
 == OpenMP
-=== Why?
-- No shared memory between nodes
-- But: Shared memory for cores inside a node
-
-OpenMP starts as a single initial/master thread. A pragma is used
-to spawn multiple threads (fork):
 ```c
 pragma omp parallel
 {
@@ -645,14 +517,7 @@ memory location for variable B.
 
 After the loop, threads terminate and A will be cleared from memory.
 
-==== Private vs firstprivate
-Using Firstprivate(x) x is initialized for each thread with the value of x before the parallel part.
-Using private(x), x is initialized in the threads with 0 (default value).
-
-Loop variables are private by default.
-
 ==== Race conditions with shared variables
-Of course, race conditions can still happen:
 ```c
 const int n = 300;
 int sum = 0;
@@ -661,7 +526,6 @@ for (int i = 0; i < n; ++i) {
   sum += i;
 }
 ```
-Here, it's not guaranteed that the sum is added correctly, data races likely happen.
 
 We can avoid race conditions with a Mutex:
 ```c
@@ -674,11 +538,6 @@ for (int i = 0; i < n; ++i)
   sum += i;
 }
 ```
-However, this is:
-- Extremely slow due to serialization
-- Slower than a single thread
-- For this code overkill
-- Mutex is heavy weight too $->$ large performance overhead
 
 ==== Lightweight Mutex
 ```c
@@ -725,15 +584,6 @@ MPI_Finalize();
 ```
 
 = Performance scaling
-// optional
-== Writing fast parallel programs is hard
-- Finding parallelism
-- How big should the parallel part be (granularity)
-- Moving data costs a lot
-- Load balancing
-- Coordination + Synchronization
-- Performance debugging
-
 == Scalability
 - Ability to handle more work as the size of the computer/program grows
 - Widely used to describe the ability of hardware and software to deliver greater computational power when the number of resources is increased 
@@ -750,36 +600,11 @@ MPI_Finalize();
 - *Harder to achieve good strong-scaling at larger process counts since the communication overhead for most algorithms increase in proportion to the processors used.*
 
 === Mathematical definiton of Amdahls law
-- $T =$ total time
-- $p =$ part that can be parallelized
-- $T = p T + (1 - p) T$
-- Using N processors:
-  - $T_N = (p T)/N + (1 - p) T$
-- Serialized part $s = 1 - p$
 - $"Speedup" = T / ((p T) / N + (1 - p) T) = 1 / (s + p/n)$
 - $"Efficiency" = T / (N T_N)$
 
 
-#figure(
-  image("assets/speedup.png", width: 80%),
-  caption: [Speedup relative to the parallel portion of a program],
-) <fig-speedup>
-
-Amdahls law ignores the *parallel overhead*:
-- Task startup time
-- Interprocess interactions:
-  - Communication/data movement
-  - Synchronization
-- Idling due to load imbalance/synchronization
-- Excess redundant computation
-- Software overhead (language, libraries, OS, etc.)
-- Task termination time
-
 == Gustafsons Law
-In practice, the sizes of problems scale/change with the amount of available resources.
-A reasonable choice is to use small amounts of resources for small problems and
-large amount of resources for big problems.
-
 - Weak scaling mostly used for large memory bound applications
 $
 "Speedup" = s + p N
@@ -817,38 +642,15 @@ If the IO is high, we have a more efficient utilization of modern parallel proce
   image("assets/roofline-model.png", width: 80%),
   caption: [Roofline model],
 ) <fig-roofline-model>
-=== Example
-- Peak floating point performance of 17.6 GFlops/s
-- Peak memory bandwith of 15 GB/s
-
 $"Attainable Perf" = min("Peak Perf", "Peak Memory Bandwidth" times "Operational Intensity")$
-
-#figure(
-  image("assets/roofline-model-example.png", width: 80%),
-  caption: [Roofline model example],
-) <fig-roofline-model-example>
 
 == GPUs
 SIMD is essentially vector parallelism.
 
-#table(columns: 2, [*GPU*], [*CPU*],
-[Small caches per core], [Large caches in chip], 
-[Aim: high throughput], [Aim: low latency per thread])
-
 == NUMA Model
-- NUMA: Non-Uniform Memory Access
-- No shared main memory between CPU and GPU
-  - Explicit transfer
-- Different instruction set/architecture
-  - Compile and design code for GPU
+NUMA: Non-Uniform Memory Access
 
 == CUDA
-- Allocate GPU memory: `cudaMalloc`
-- Copy data from CPU to GPU: `cudaMemcpy`
-- Launch kernel on GPU to process data
-- Copy data back to CPU: `cudaMemcpy`
-- Memory is freed : `cudaFree`
-
 ```c
 __global__
 void VectorAddKernel(float *A, float *B, float *C) { // GPU (Device)
@@ -881,28 +683,13 @@ int main() {
 }
 ```
 
-#figure(
-  image("assets/cuda-compilation.png", width: 80%),
-  caption: [Cuda compilation],
-) <fig-cuda-compilation>
-
-#figure(
-  image("assets/cuda-api.png", width: 80%),
-  caption: [CUDA Programming Interface],
-) <fig-cuda-api>
-
 == CUDA Execution model
 - Thread = Virtual Scalar Processor
 - Block = Virtual Multiprocessor
 - Blocks must be independent
-- Kernel composed of blocks
 - Each block contains (usually) 1024 threads, each thread has an ID
-- The CUDA runtime can choose how to allocate blocks among streaming
-  multiprocessors (SM). For large GPUs each SM gets a block
 - Threads & Blocks must complete
 - All threads in a block run on the same SM at the same time
-- Threads of a block execute concurrently on one multiprocessor
-- Multiple threads can execute concurrently on one multiprocessor
 
 
 #figure(
@@ -1019,11 +806,6 @@ So we go linearly through the data.
 Variables in a thread are usually stored in registers. If we have too many variables for the registers to hold, the variables are put on the global memory $->$ Register spilling (slow).
 
 
-#figure(
-  image("assets/cuda-memory-model.png", width: 80%),
-  caption: [CUDA memory model],
-) <fig-cuda-memory-model>
-
 We can save variables in shared memory with:
 ```c
 __shared__ float x;
@@ -1032,3 +814,4 @@ Only 48 KB. So for example in the matrix multiplication, it makes sense to
 store chunks of data in the shared memory (tiled matrix multiplication).
 
 In tiled matrix multiplication we need `__syncthreads()` to avoid data races.
+])
