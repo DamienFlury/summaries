@@ -33,6 +33,9 @@
 = Thread states
 Running, Waiting, Ready
 
+= Resource Graphs
+- R $->$ T: Thread T acquires lock of resource R
+- T $->$ R: Thread T waits for lock of resource R
 = JVM
 - Scheduling of threads handled by the OS
 - The current thread can be accessed with `Thread.currentThread()`
@@ -45,6 +48,11 @@ t1.start();
 == Interrupts
 When `t2.interrupt()` is called, the thread doesn't terminate directly. It only
 stops when t2 calls `join`, `wait` or `sleep`.
+
+== Get number of cores:
+```java
+int cores = Runtime.getRuntime().availableProcessors();
+```
 
 == Java Thread Lifecycle
 - Blocked
@@ -67,9 +75,16 @@ If `wait`, `notify` and `notifyAll` are called outside synchronized blocks: Ille
 ```java
 private Lock monitor = new ReentrantLock(true);
 private Condition nonFull = monitor.newCondition();
-nonFull.signal();
-nonFull.signalAll();
-nonFull.await();
+private Condition nonEmpty = monitor.newCondition();
+public void doSomething() {
+  monitor.lock();
+  try {
+    while(condition) { nonFull.await(); }
+    nonEmpty.signalAll();
+  } finally {
+    monitor.unlock();
+  }
+}
 ```
 == Read-Write Locks
 ```java
