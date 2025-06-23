@@ -60,7 +60,7 @@ Idea: "Trial and error", the agent starts with random actions. It has a wide fie
 - Computation heavy, thousands of simulation hours
 - Defining reward function is difficult
 
-== Markov Decision Process (MPD)
+== Markov Decision Process (MDP)
 - *S*: Set of states ${ S_0, ..., S_7 }$
 - *A*: Set of actions ${ a_0, a_1 }$
 - *R*: The (positive and negative) rewards
@@ -81,3 +81,30 @@ $pi(s=53, a="left") = 0.76$. There are infinite policies, an RL agent typically 
 
 Optimally we want to choose for each state $S_t$ the action $A_t$ which returns the
 largest *sum of (discounted) rewards*.
+
+- $pi^*$: Optimal policy (if the agent knows the full MPD)
+
+== Discount factor $gamma$
+The shorter path to the same reward is usually preferable. We discount rewards
+that are far away. The real world is full of risks, will the reward still be
+there? In mechanics each step of the machine has a risk of failure.
+
+Discounting is applied when comparing *future* rewards. When the agent actually
+lands in a state, he gets the full reward $R$ (not $lambda R$)
+
+#figure(
+  image("assets/discounted-rewards.png", width: 80%),
+  caption: [Discounted rewards],
+) <fig-discounted-rewards>
+
+== Return G
+- Discounted sum of future rewards
+$
+G_t = R_(t+1) + gamma R_(t+2) + gamma^2 R_(t+3) + dots.h.c
+= sum_(k=0)^infinity gamma^k R_(t + k + 1)
+$ 
+
+== State-action value $Q(s, a)$
+The state-action value $Q^pi(s, a)$ is the expected Return $G$, when starting in state $s$, taking action $a$ and following the policy $pi$ thereafter. 
+
+The goal of many RL algorithms is to estimate these q-values.
