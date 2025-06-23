@@ -21,7 +21,9 @@
 #set par(leading: 0.5em)
 
 
-#columns(5, gutter: 0.8em, [
+#columns(5, gutter: 0.2em, [
+
+#block(fill: blue.lighten(95%), inset: 2pt)[
 
 = Context switching
 - Synchron: Waits for condition
@@ -39,11 +41,6 @@ Running, Waiting, Ready
 = JVM
 - Scheduling of threads handled by the OS
 - The current thread can be accessed with `Thread.currentThread()`
-```java
-var t1 = new Thread(() -> { System.out.println("Hi from t1"); })
-t1.setDaemon(true) // Stops running when main-thread is finished
-t1.start();
-```
 
 == Interrupts
 When `t2.interrupt()` is called, the thread doesn't terminate directly. It only
@@ -102,8 +99,6 @@ rwLock.writeLock().unlock();
   - More fine grained control on which Threads to wake up (instead of all)
 
 = Race Conditions
-== Race condition without Data Race
-
 Synchronization can be skipped, if:
 - Immutability is used/Read-Only Objects
 - Confinement (Einsperrung): Objects belong to only one thread at a time
@@ -113,11 +108,6 @@ Synchronization can be skipped, if:
 - Object Confinement: Object is encapsulated in already synchronized objects
 
 == Threadsafe Java collections
-Old Java-Collections like `Vector`, `Stack`, `Hashtable` are threadsafe. Modern
-collections (`HashSet`, `TreeSet`, `ArrayList`, `LinkedList`, `HashMap`,
-`TreeMap`) are *not* threadsafe. $->$ `ConcurrentHashMap`,
-`ConcurrentLinkedQueue`, `CopyOnWriteArrayList`.
-
 Concurrent collections have strong concurrency guarantees, but have weakly conisistent iterators! There's no `ConcurrentModificationException` and concurrent updates are likely not seen by others.
 
 == Deadlock avoidance
@@ -144,7 +134,8 @@ Threads can be made daemon threads by calling `t.IsBackground = true`.
 
 - `Monitor.Wait(obj)`
 - `Monitor.PulseAll(obj)`
-
+]
+#block(fill: green.lighten(95%), inset: 2pt)[
 = Concurrency at scale
 Many Threads slow down the system:
 - Longer time intervals in between threads
@@ -200,16 +191,6 @@ int result = threadPool.invoke(new CountTask(2, N))
 Default Pool: `ForkJoinPool.commonPool()`: \
 `int result = new CountTask(2, N).invoke();`
 
-==== Avoid Over-Parallelizing
-```java
-protected Integer compute() {
-  if (upper - lower > THRESHOLD) {
-    // parallel count
-  } else {
-    // sequential count
-  }
-}
-```
 
 ==== Special features
 - Fire and forget might not finish (Worker threads are daemon threads)
@@ -300,7 +281,8 @@ var text = await DownloadAsync(url);
 label.Content = text;
 ```
 If the thread is an UI thread, the part after the `await` instruction is guaranteed to be ran by the UI thread (instead of the separate Task where the await is ran).
-
+]
+#block(fill: red.lighten(95%), inset: 2pt)[
 = Memory model
 == Visibility
 Atomicity does not imply visibility! One thread may not see updates of another thread at all (or possibly much later).
@@ -393,7 +375,8 @@ b = true;
 Thread.MemoryBarrier();
 while(!a) {}
 ```
-
+]
+#block(fill: orange.lighten(95%), inset: 2pt)[
 = Cluster Programming
 - Highest possible parallel acceleration
 - Lots of CPU cores (instead of GPU cores)
@@ -597,7 +580,8 @@ private(iam, np) {
 }
 MPI_Finalize();
 ```
-
+]
+#block(fill: purple.lighten(95%), inset: 2pt)[
 = Performance scaling
 == Scalability
 - Ability to handle more work as the size of the computer/program grows
@@ -658,7 +642,9 @@ If the IO is high, we have a more efficient utilization of modern parallel proce
   caption: [Roofline model],
 ) <fig-roofline-model>
 $"Attainable Perf" = min("Peak Perf", "Peak Memory Bandwidth" times "Operational Intensity")$
+]
 
+#block(fill: lime.lighten(95%), inset: 2pt)[
 == GPUs
 SIMD is essentially vector parallelism.
 
@@ -753,21 +739,16 @@ Unified memory allows automatic memory transfer from CPU to GPU:
 A = (float *)malloc(size);
 B = (float *)malloc(size);
 C = (float *)malloc(size);
-
 vectorAdd(A, B, C, N);
-
 free(A);
 free(B);
 free(C);
-
 // ...
 cudaMallocManaged(&A, size);
 cudaMallocManaged(&B, size);
 cudaMallocManaged(&C, size);
-
 VectorAddKernel<<<..., ...>>>(A, B, C, N);
 cudaDeviceSynchronize(); // Wait for GPU to finish
-
 cudaFree(A);
 cudaFree(B);
 cudaFree(C);
@@ -829,4 +810,5 @@ Only 48 KB. So for example in the matrix multiplication, it makes sense to
 store chunks of data in the shared memory (tiled matrix multiplication).
 
 In tiled matrix multiplication we need `__syncthreads()` to avoid data races.
+]
 ])
