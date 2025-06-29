@@ -1,4 +1,3 @@
-
 = Aufgaben eines Betriebssysteme
 Ein Betriebssystem ist eine Abstraktion von der Hardware und von darunterliegenden Protokollen und Softwareservices.
 Dadurch bietet es eine Portabilität.
@@ -61,11 +60,42 @@ Innerhalb einer Kernel-Version wird die gleiche ABI garantiert, aber nicht zwisc
 
 Daher sollten Applikationen nicht direkt Syscalls aufrufen, sondern C-Wrapper-Funktionen $->$ ABI-Kompatibilität.
 
+== Umgebungsvariablen
+- Werden vom erzeugenden Prozess festgelegt (e.g. shell)
+- C: `environ` (Variable)
+  - Sollte nicht direkt verwendet werden $->$ `getenv`, `putenv`, `setenv`, `unsetenv`
+- Value kann auch ein `=` enthalten
 
+=== C-API
+==== Abfragen
+```c
+char * getenv(const char * key)
+```
+- gibt Adresse des ersten Zeichens des entsprechenden Values zurück
+- Falls Umgebungsvariable mit dem key nicht vorhanden: gibt 0 zurück
 
+==== Setzen
+```c
+int setenv(const char * key, const char * value, int overwrite)
+```
+- _Kopiert_ key und value
 
+==== Entfernen
+```c
+int unsetenv(const char * key)
+```
 
+==== Hinzufügen
+```c
+int putenv(char * kvp)
+```
+- Fügt den Pointer kvp dem Array der Umgebungsvariablen hinzu
+- Der String wird _nicht_ kopiert! Nur die Adresse wird kopiert.
+- Ersetzt Key-Value-Pair, falls Key bereits vorhanden
 
-
-
-
+=== Weitere Konfigurationsmöglichkeiten
+- Programme sehen häufig anstelle einiger Umgebungsvariablen optionale Programmargumente vor (Bsp. Docker)
+- Grössere Konfigurationsinformationen sollten bevorzugt über Dateien übermittelt werden:
+  - Nötig wegen Beschränkungen der Zeilenlänge
+  - Datenname als Umgebungsvariable/Programmargument übergeben
+- Einige OS kennen noch andere Mechanismen: e.g. Windows Registry, ähnlich einer Datenbank (Key-Value-Pairs mit beliebig vielen untergeordneten Key-Value-Pairs)
