@@ -309,3 +309,38 @@ lose information about the local order of words.
 
 == RNN concept
 
+On the right we see the idea. The box is the same instead of being different on
+each input.
+
+One function calculates $h_t$, another function calculates $hat(y)_t$
+#figure(
+  image("assets/recurrence.png", width: 80%),
+  caption: [Recurrence],
+) <fig-recurrence>
+
+
+#figure(
+  image("assets/simple-rnn.png", width: 80%),
+  caption: [simpleRNNCell (Keras)],
+) <fig-simple-rnn>
+$->$ Matrix multiplication.
+
+=== Exploding Gradient Problem
+- As the backpropagation-through-time (BPTT) algorithm advances backwards, the
+  gradients can get larger and larger $->$ Gradient descent never converges
+
+=== Vanishing Gradient Problem
+As the backpropagation algorithm advances backwards, gradients often get
+smaller and smaller $->$ Gradient eventually approaches 0, harder and harder to
+propagate errors from the loss back to distant past $->$ RNN only learns short
+term dependencies.
+
+
+== Calculation of an RNN
+=== Weights
+- $d$: Input dimension
+- $u$: Output dimension
+- $b$: biases, one per unit
+$
+"weights" = "units" times (d + u + b)
+$
