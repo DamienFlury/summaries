@@ -16,3 +16,4 @@ Konstante Strings werden ausserdem speziell gespeichert.
 #include "chapters/operating-systems.typ"
 #include "chapters/dateisystem-api.typ"
 #include "chapters/prozesse.typ"
+#include "chapters/dynamic-libraries.typ"
