@@ -57,4 +57,74 @@ dem Tool `ar` erzeugt. Per Konvention folgen Bibliotheksnamen dem Muster
   caption: [Statische Bibliotheken],
 ) <fig-static-libraries>
 
+Statische Bibliotheken sind einfacher. Der Nachteil ist, dass Programme bei
+Änderungen in Bibliotheken neu erstellt werden müssen und dass die
+Funktionalität fix ist, d.h. Plugins sind nicht moglich.
+
+== Dynamische Bibliotheken
+Bei dynamischen Bibliotheken wird das Linken erst zur Ladezeit/Laufzeit des Programs durchgeführt.
+Dies bedeutet höheren Aufwand für Programmierer, Compiler, Linker und OS.
+
+Programme können um Funktionalität ergänzt werden, die beim Schreiben nicht vorgesehen war. Dazu definiert das Programm eine allgemeine Schnittstelle (Funktionsnamen, Signaturen). Jede Plugin-Bibliothek implementiert diese Schnittstelle.
+
+=== POSIX: Shared Objects (SO) API
+```c void * dlopen(char * filename, int mode)```
+Die Funktion öffnet eine dynamische Bibliothek und gibt einen Handle darauf zurück.
+Der `mode` gibt an:
+- `RTLD_NOW`: Alle Symbole werden beim Laden gebunden
+- `RTLD_LAZY`: Symbole werden bei Bedarf gebunden
+- `RTLD_GLOBAL`: Synmbole können beim Binden anderer Objekt-Dateien verwendet werden
+- `RTLD_NOW`: Symbole werden nicht für andere Objekt-Dateien verwendet
+
+```c dlsym (void * handle, char * name)```
+Gibt die Adresse des Symbols `name` aus dem Handle. Dabei werden keine Typinformationen übertragen (`void *`).
+
+```c int dlclose (void * handle)```
+Schliesst das Objekt, gibt 0 zurück wenn erfolgreich.
+
+```c char * dlerror()```
+Gibt bei Fehler eine Fehlermeldung als null-terminierten String zurück
+
+==== Benennungsschema
+- Linker-Name: `lib<name>.so`
+- SO-Name: `<linkername>.<versionsnummer>`
+- Real-Name: `<so-name>.<unterversionsnummer>`
+
+Das tool `ldconfig` setzt die Namen korrekt auf:
+- Bibliotheksdatei in `/usr/lib/` + Real-Name
+- `/usr/lib/` + SO-Name ist Soft-Link auf die Bibliotheksdatei
+- `/usr/lib` + Linker-Name ist Soft-Link auf `/usr/lib/` + SO-Name
+
+Somit können verschiedene Programme verschiedene Unterversionen ansteuern oder eine Grossversion.
+
+=== Verwendung von Bibliotheken
+==== Statische Bibliothek
+`clang main.c -o main -L. -lmylib`
+- Option `-L`: fügt "." zum Suchpfad hinzu
+- `-lmylib` bezieht sich auf libmylib.a
+
+==== Dynamische Bibliothek, mit Programm geladen
+`clang main.c -o main -lmylib`
+- `-lmylib` bezieht sich auf libmylib.so
+
+==== Dynamische Bibliothek, mit `dlopen` geladen
+Um dynamische Bibliotheken importieren zu können, brauchen wir libdl.so (stellt `dlopen`, etc. zur Verfügung):
+`clang main.c  -o main -ldl`
+
+
+Eine dynamische Library wird in den Dynamic Library Page Frame geladen -> Kann
+von verschiedenen Prozessen verwendet werden, shared memory. Mehrere Prozesse
+mappen auf denselben Frame im RAM.
+
+Dazu wird Position-Independent Code (PIC) benötigt:
+Adressen werden mit Offset vom IP berechnet.
+Dazu muss der Prozessor relative Instruktionen anbieten.
+`x86_32` hat (im Gegensatz zu `x86_64`) nur relative Calls, aber keine relative
+Moves. Relative Moves können über relative Calls emuliert werden.
+$->$ Global Offset Table (GOT)
+
+Die Procedure Linkage Table (PLT) implementiert Lazy Binding. Sie enthält pro
+gebundene Funktion einen Eintrag. PLT-Eintrag enthält einen Sprungbefehl in
+GOT-Eintrag.
+
 
