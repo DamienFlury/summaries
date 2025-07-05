@@ -55,3 +55,45 @@ dass der Stack während der Lebensdauer des Threads nicht abgebaut wird.
   ```
 
 
+=== Attribute
+```c
+pthread_attr_t attr;
+pthread_attr_init(&attr);
+pthread_attr_setstacksize(&attr, 1 << 16);
+pthread_create(..., &attr, ...);
+pthread_attr_destroy(&attr);
+```
+Der Grund dafür ist, dass `pthread_attr_t` je nach Implementation mehr Speicher benötigen kann.
+
+== Lebensdauer eines Threads
+Bis:
+- Springt aus `start_function` zurück
+- Ruft `pthread_exit` auf
+- Ein anderer Thread ruft `pthread_cancel` auf
+- Sein Prozess wird beendet
+
+== Thread-Local Storage (TLS)
+TLS stellt globale Variablen _per Thread_ zur Verfügung.
+
+Schritte:
++ Anlegen eines Keys für die TLS-Variable
++ Speichern des Keys in einer globalen Variable
++ Auslesen des Keys aus der globalen Variable
++ Auslesen / Schreiben des Werts anhand des Keys
+
+```c
+pthread_key_t error;
+void *thread_function (void *) {
+  pthread_setspecific (error, malloc(sizeof(int)));
+  int * e = pthread_getspecific(error);
+  *e = 25;
+}
+int main() {
+  pthread_key_create (&error, NULL);
+  pthread_t tid;
+  pthread_create (&tid, NULL, &thread_function, NULL);
+  pthread_join (tid, NULL);
+}
+```
+
+

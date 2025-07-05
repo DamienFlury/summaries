@@ -18,3 +18,4 @@ Konstante Strings werden ausserdem speziell gespeichert.
 #include "chapters/prozesse.typ"
 #include "chapters/dynamic-libraries.typ"
 #include "chapters/threads.typ"
+#include "chapters/scheduling.typ"
