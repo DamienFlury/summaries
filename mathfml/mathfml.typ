@@ -1,13 +1,37 @@
+#set page("a4", columns: 2, flipped: true, margin: 20pt)
+#set text(size: 10pt)
 = Derivatives
 $
 &dif/(dif x) 1/x &= -1/x^2 \
+$
+$
 &dif/(dif x) sqrt(x) &= 1/(2 sqrt(x)) \
+$
+$
 &dif/(dif x) a^x &= ln(a) a^x \
+$
+$
 &dif/(dif x) log_b (x) &= 1/(ln(b) x) \
-&dif/(dif x) tan(x) &= 1/(cos^2(x)) = 1 + tan^2 (x) \
+$
+$
+dif/(dif x) tan(x) &= 1/(cos^2(x)) \ &= 1 + tan^2 (x) \
+$
+$
 &dif/(dif x) arcsin(x) &= 1/sqrt(1-x^2) \
+$
+$
 &dif/(dif x) arccos(x) &= -1/sqrt(1-x^2) \
+$
+$
 &dif/(dif x) arctan(x) &= 1/(1 + x^2) \
+$
+$
+gradient(bold(x)^T dot bold(x)) &= gradient |bold(x)|^2 \ &= 2 |bold(x)| bold(x)^T/(|bold(x)|) \ &= 2 bold(x)^T \
+$
+$
+&gradient(|bold(v)|) = bold(v)^T/(|bold(v)|)
+$
+$
 $
 
 
@@ -71,3 +95,44 @@ $
 &= {vec(x, f(x)) | x in D}
 $
 is called the _graph_ of $f$.
+
+== Linearisation
+$
+L(x) = f(x_0) + J_f (x_0) (x - x_0) 
+$
+$
+f(x, y, z) = vec(x^2 sin(y), y + cos(x-z)) = vec(0, 1)\
+J_f = mat(2 x sin(y), x^2 cos(y), 0; -sin(x-z), 1, sin(x-z)) \
+=> J_f (1, 0, 1) = mat(0, 1, 0;0, 1, 0) \
+f(1.1, -0.1, 0.9) approx f(1,0,1) + J_f (1,0,1) (vec(1.1,-0.1,0.9) - vec(1, 0, 1))
+$
+
+= Probability Theory
+== Cumulative distribution function (CDF)
+$
+F_Y (y) = PP(Y <= y)
+$
+
+A function $f: RR -> RR^+$, such that
+$
+integral_(-infinity)^infinity f(t) dif t = 1
+$
+is called _probability densitiy function (PDF)_. With any PDF we can associate a continuous cumulative distribution function (CDF)
+$
+F(alpha) = integral_(-infinity)^alpha f(t) dif t
+$
+and a probability measure $PP$ that associates the probability of the event $E subset RR$ to occur with the area of all points underneath the function $f(t)$ whose $t$-values reside in $E$:
+$
+PP(E) = integral_(t in E) f(t) dif t
+$
+
+$
+F_Y (y) = PP (Y <= y) = PP(g(Y) <= g(y)) = PP(X <= g(y)) = F_X (g(y)) \
+f_X (g(y)) dot g'(y) = f_Y (y)
+$
+
+== Maximum likelihood
+$n$: Successful events
+$
+l(a, b) = (product_(x in S_"Day") p_(m,q) (b(x))) (product_(x in S_"Night") (1 - P_(m, q) (b(x)))) = p^n (1-p)^("total" - n)
+$
