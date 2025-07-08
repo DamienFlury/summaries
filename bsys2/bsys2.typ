@@ -5,6 +5,8 @@
 #set page(numbering: "1")
 #set heading(numbering: "1.1.1")
 
+#outline()
+
 = Speichern von Strings
 ```c
 char const c[4] = { 'H', 'a', 'i', '\0' };
