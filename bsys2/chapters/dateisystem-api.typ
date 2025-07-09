@@ -4,6 +4,8 @@ File Systems haben zwei Bedeutungen: Einerseits auf der Seite des OS, der Teil,
 welcher die Datenträger verwaltet. Auf der anderen Seite die Struktur des
 Datenträgers selber.
 
+Der Prozess selber weiss nicht was eine Datei ist und wie das OS damit umgeht.
+
 == OS-Ebene
 === Logische Organisation
 Dateien bestehen aus zwei Teilen: Den eigentlichen Daten (Inhalt und Struktur
@@ -141,3 +143,5 @@ Die Streams können gepuffert oder ungepuffert sein.
 === Zusammenarbeit mit POSIX
 - ```c FILE * fdopen (int fd, char const *mode)```
 - ```c int fileno (FILE *stream)```
+
+

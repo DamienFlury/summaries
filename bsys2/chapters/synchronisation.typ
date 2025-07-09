@@ -62,3 +62,5 @@ priorisierten Thread gehalten wird, oder wenn ein Thread mit Priorität zwischen
 
 == Priority Inheritance
 Der Thread, der eine Ressource hält, bekommt die höchste Priorität aller Threads, die auf diese Ressource warten.
+
+

@@ -21,3 +21,5 @@ Konstante Strings werden ausserdem speziell gespeichert.
 #include "chapters/dynamic-libraries.typ"
 #include "chapters/threads.typ"
 #include "chapters/scheduling.typ"
+#include "chapters/signals.typ"
+#include "chapters/pipes.typ"
