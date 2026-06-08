@@ -92,7 +92,7 @@ $
 
 == Maximum Likelihood Estimation
 $
-hat(#vtheta) = argmax_(#vtheta) product_(i=1)^m p_"model" (#x^((i)); #vtheta)
+hat(vtheta) = argmax_(vtheta) product_(i=1)^m p_"model" (#x^((i)); vtheta)
 $
 *Problem:* Multiplying many small numbers is numerically (for computers) not stable $->$ logarithm to the rescue:
 $
@@ -100,6 +100,82 @@ argmax f(x) = argmax log f(x)
 $
 Therefore, we maximize the *log-likelihood:*
 $
-argmax_(#vtheta) sum_(i = 1)^m log p_"model" (#x^((i)); #vtheta)
+&= argmax_(vtheta) sum_(i = 1)^m log p_"model" (#x^((i)); vtheta) \
+&= argmax_(vtheta) 1/m sum_(i = 1)^m log p_"model" (#x^((i)); vtheta) \
 $
 
+=== Relation to cross-entropy
+Expectation over an empirical data distribution is:
+$
+EE_(#x tilde hat(p)_"data") [f(x)] = 1/m sum_(i = 1)^m f(#x^((i)))
+$
+Hence, the term $argmax_(vtheta) 1/m sum_(i = 1)^m log p_"model" (#x^((i)); vtheta)$ can be written as:
+$
+&= argmax_(vtheta) EE_(#x tilde hat(p)_"data") log p_"model" (#x ; #vtheta) \
+&= hat(vtheta)_"ML" = argmin_vtheta H(hat(p)_"data", p_"model") \
+&= hat(vtheta)_"ML" = argmin_vtheta D_"KL" (hat(p)_"data" || p_"model")
+$
+
+Maximum log-likelihood and minimizing the cross entropy works the same way:
+$
+hat(vtheta)_"ML" = argmax_vtheta sum_(i=1)^m log P(bold(y)^((i)) | #x^((i)) ; vtheta)
+$
+
+== Stochastic Gradient Descent
+$
+argmax_vtheta sum_(i = 1)^m log P(bold(y)^((i)) | #x^((i)) ; vtheta) \
+= argmin_vtheta 1/m sum_(i = 1)^m -log P(bold(y)^((i)) | #x^((i)) ; vtheta)
+$
+
+$
+hat(g) = 1/m' sum_(i = 1)^m' gradient_vtheta L(#x^((i)), bold(y)^((i)), vtheta)
+$
+where $m'$ is the *Minibatch size* (important hyperparameter), typically
+between 1 and 1'000 (independent from dataset size!). Selected based on
+available GPU memory.
+
+SGD Algorithm:
++ Randomly sample minibatch BB of size $m'$
++ Estimate gradient $hat(g) = 1/m' sum_(i = 1)^m' gradient_vtheta L(#x^((i)), bold(y)^((i)), vtheta)$
++ Take small step in negative gradient direction $vtheta <- vtheta - epsilon hat(g)$
+
+== Ingredients for a machine learning algorithm
+*In Example of linear regression:*
+- *Dataset:* $y in RR$ $#x in RR^n$
+- *Cost function:* cross-entropy $J(bold(w), b) = - EE_(#x, y tilde hat(p)_"data") log p_"model" (y | #x)$
+- *Probabilistic model:* Gaussian $p_"model" (y | #x) = cal(N) (y ; #x^T bold(w) + b, 1)$
+- *Optimization algorithm:* $bold(w) = (#X^(("train")T) #X^(("train")))^(-1) #X^(("train")T) bold(y)^(("train"))$
+
+== Challenges Motivating Deep Learning
+Traditional algorithms and ML work well in many applications, but many *central
+problems* were *not solved* (recognizing speech, understanding/processing text,
+detecting objects in images). One key reason is the *curse of dimensionality*.
+
+=== The Curse of Dimensionality
+As the *number of variables* (dimensions) increases, the *number of
+combinations* increases *exponentially*.
+
+*Example:* 10 possible values per dimension, target: know 80% of possible values:
+- 1d $->$ requires *8* values
+- 2d $->$ requires *64* values
+- 3d $->$ requires *512* values
+
+$->$ The number of training samples must *increase exponentially* (and so does
+data collection, memory consumption and processing power).
+
+Collecting such amounts of data is *not feasible* $->$ for high-dimensional data
+*most of the space is empty*. What should we predict for test points that are
+*far from all training points*?
+
+=== Why this breaks traditional ML
+Generalization relies on *assumptions* about the data. Traditional ML assumes
+the data is *locally constant* or *smooth*:
+$
+f^*(#x) approx f^*(#x + epsilon)
+$
+In *high-dimensional* data this assumption *fails*: in a mostly empty space
+*all points are far away*, so there is no nearby example to generalize from.
+
+
+== Manifolds
+A manifold is a *connected region/set of points* embedded in a high dimensional space, but only spans a smaller number of dimensions (E.g. street on our world, 1D line in 3D space).
