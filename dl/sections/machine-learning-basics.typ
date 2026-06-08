@@ -92,14 +92,14 @@ $
 
 == Maximum Likelihood Estimation
 $
-hat(bold(theta)) = op("arg max", limits: #true)_bold(theta) product_(i=1)^m p_"model" (#x^((i)); bold(theta))
+hat(#vtheta) = argmax_(#vtheta) product_(i=1)^m p_"model" (#x^((i)); #vtheta)
 $
 *Problem:* Multiplying many small numbers is numerically (for computers) not stable $->$ logarithm to the rescue:
 $
-op("arg max", limits: #true) f(x) = op("arg max") log f(x)
+argmax f(x) = argmax log f(x)
 $
 Therefore, we maximize the *log-likelihood:*
 $
-op("arg max", limits: #true)_bold(theta) sum_(i = 1)^m log p_"model" (#x^((i)); bold(theta))
+argmax_(#vtheta) sum_(i = 1)^m log p_"model" (#x^((i)); #vtheta)
 $
 
